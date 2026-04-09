@@ -17,7 +17,8 @@ Use this skill when:
 
 ## Inputs required
 
-- **Merchant API base URL**: e.g., `https://merchant-zfds.api.myfinqu.com/3.0/`
+- **Merchant API base URL**: e.g., `https://merchant-zfds.api.myfinqu.com/{version}/`
+- **API version**: check the project for which version it uses; the latest stable version is `3.2` but the project may target a different one
 - **Authentication**: API token (Bearer) or OAuth credentials
 - **Target resource**: which API endpoints to use (orders, products, customers, etc.)
 
@@ -25,11 +26,13 @@ Use this skill when:
 
 ### 0) Understand API basics
 
-1. Each merchant has a unique API base URL: `https://{merchant-slug}.api.myfinqu.com/3.0/`
+1. Each merchant has a unique API base URL: `https://{merchant-slug}.api.myfinqu.com/{version}/`
 2. All requests use JSON (`Content-Type: application/json`)
 3. All endpoints require authentication (`Authorization: Bearer YOUR_TOKEN`)
 4. Standard HTTP methods: GET (read), POST (create), PUT (update), DELETE (delete)
-5. API version is in the URL path (`/3.0/`)
+5. API version is in the URL path (e.g., `/3.2/`)
+6. **Always check the project's existing code or configuration to determine which API version it uses** — do not assume the latest
+7. **Consult the [Finqu API Reference](https://finqu.readme.io/reference) to verify endpoint paths, request/response objects, required fields, and available parameters** before writing integration code
 
 ### 1) Set up authentication
 
@@ -52,7 +55,7 @@ Read: `references/authentication.md`
 Example request pattern:
 
 ```http
-POST https://merchant-zfds.api.myfinqu.com/3.0/orders
+POST https://merchant-zfds.api.myfinqu.com/{version}/orders
 Content-Type: application/json
 Authorization: Bearer YOUR_API_TOKEN
 

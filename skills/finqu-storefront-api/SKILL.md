@@ -19,7 +19,7 @@ Use this skill when:
 
 - **Store domain**: e.g., `your-store.finqu.com`
 - **API key**: Storefront API key from Channel settings (prefixed `fq_`)
-- **API version**: target version (latest stable: `1.0.0`)
+- **API version**: check the project for which version it uses; the latest stable is `1.0.0` but the project may target a different one
 
 ## Procedure
 
@@ -30,6 +30,7 @@ Use this skill when:
 3. Supports customer authentication for personalized data
 4. Uses cursor-based pagination
 5. Rate limits based on query complexity
+6. **Always check the project's existing code or configuration to determine which API version it uses** — do not assume the latest
 
 ### 1) Authenticate
 
