@@ -80,5 +80,4 @@ function StoreInfo() {
 ## Full Reference
 
 - [Storefront SDK](https://developers.finqu.com/build-with-finqu/storefront/storefront-sdk.md.txt)
-- [Nexus data fetching](https://developers.finqu.com/build-with-finqu/storefront/nexus-theme/data-fetching.md.txt)
-- [Storefront API reference](https://developers.finqu.com/reference/storefront/1.0.0.md.txt)
+- [Storefront API reference](https://developers.finqu.com/reference/storefront/1.1.0.md.txt)

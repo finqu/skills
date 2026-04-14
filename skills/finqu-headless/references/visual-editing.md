@@ -52,5 +52,4 @@ export const TextBlock = defineComponent({
 
 ## Full Reference
 
-- [Nexus visual editing](https://developers.finqu.com/build-with-finqu/storefront/nexus-theme/visual-editing.md.txt)
-- [Nexus blocks](https://developers.finqu.com/build-with-finqu/storefront/nexus-theme/blocks.md.txt)
+- [Storefront SDK](https://developers.finqu.com/build-with-finqu/storefront/storefront-sdk.md.txt)

@@ -125,6 +125,69 @@ query {
 }
 ```
 
+## Customer Query
+
+Requires `@storeContext` with `customerAccessToken`:
+
+```graphql
+query @storeContext(customerAccessToken: "TOKEN") {
+    customer {
+        id
+        firstName
+        lastName
+        email
+        orderCount
+        orderTotal
+        acceptsMarketing
+    }
+}
+```
+
+## Order Queries
+
+Require `@storeContext` with `customerAccessToken`:
+
+**Single order:**
+
+```graphql
+query @storeContext(customerAccessToken: "TOKEN") {
+    order(id: "ORDER_ID") {
+        id
+        orderNumber
+        totalPrice
+        financialStatus
+        fulfillmentStatus
+        lines {
+            id
+            quantity
+            title
+        }
+    }
+}
+```
+
+**Order listing:**
+
+```graphql
+query @storeContext(customerAccessToken: "TOKEN") {
+    orders(first: 10, sortKey: PROCESSED_AT, reverse: true) {
+        edges {
+            node {
+                id
+                orderNumber
+                processedAt
+                totalPrice
+                financialStatus
+            }
+        }
+        pageInfo {
+            hasNextPage
+            endCursor
+        }
+    }
+}
+```
+
 ## Other Queries
 
 - `article(id)` / `articles(first)` — Blog articles
@@ -143,7 +206,10 @@ query {
 
 ## Full Reference
 
-- [All queries (v1.0.0)](https://developers.finqu.com/reference/storefront/1.0.0.md.txt)
-- [Product query](https://developers.finqu.com/reference/storefront/1.0.0/queries/product.md.txt)
-- [Cart query](https://developers.finqu.com/reference/storefront/1.0.0/queries/cart.md.txt)
-- [Store query](https://developers.finqu.com/reference/storefront/1.0.0/queries/store.md.txt)
+- [All queries (v1.1.0)](https://developers.finqu.com/reference/storefront/1.1.0.md.txt)
+- [Product query](https://developers.finqu.com/reference/storefront/1.1.0/queries/product.md.txt)
+- [Cart query](https://developers.finqu.com/reference/storefront/1.1.0/queries/cart.md.txt)
+- [Store query](https://developers.finqu.com/reference/storefront/1.1.0/queries/store.md.txt)
+- [Customer query](https://developers.finqu.com/reference/storefront/1.1.0/queries/customer.md.txt)
+- [Order query](https://developers.finqu.com/reference/storefront/1.1.0/queries/order.md.txt)
+- [Orders query](https://developers.finqu.com/reference/storefront/1.1.0/queries/orders.md.txt)

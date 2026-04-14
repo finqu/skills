@@ -1,6 +1,6 @@
 ---
-name: finqu-storefront
-description: 'Headless storefront development with Next.js, Nexus theme, Storefront SDK, and Puck visual editor'
+name: finqu-headless
+description: 'Headless storefront development with Next.js, Storefront SDK, and Puck visual editor'
 ---
 
 # Finqu Headless Storefront
@@ -10,7 +10,6 @@ description: 'Headless storefront development with Next.js, Nexus theme, Storefr
 Use this skill when:
 
 - Creating a new headless storefront with Next.js
-- Working with the Nexus theme (Finqu's official Next.js storefront)
 - Using the Storefront SDK (`@finqu/storefront-sdk`)
 - Building or customizing Puck visual editor components
 - Setting up customer authentication in a headless storefront
@@ -26,13 +25,12 @@ Use this skill when:
 
 ### 0) Choose your starting point
 
-**Option A — Start with Nexus theme (recommended):**
+**Option A — Use the CLI:**
 
 ```bash
 npm install -g @finqu/cli
 finqu sign-in
 finqu storefront init
-# Select Nexus as starting point, follow prompts
 npm run dev
 ```
 
@@ -70,19 +68,7 @@ const client = new StorefrontClient({
 
 Read: `references/storefront-sdk.md`
 
-### 2) Understand Nexus theme architecture
-
-If using Nexus:
-
-1. Dynamic routing resolves any URL to a Finqu resource (product, category, page)
-2. Visual page builder powered by Puck for drag-and-drop editing
-3. Multi-locale support with automatic detection and switching
-4. Server-side rendering with Next.js App Router
-5. Component library built with shadcn/ui and Radix primitives
-
-Read: `references/nexus-theme.md`
-
-### 3) Data fetching
+### 2) Data fetching
 
 1. Use the SDK's GraphQL client for fetching products, collections, cart, etc.
 2. Server client (`@finqu/storefront-sdk/server`) supports Next.js ISR caching
@@ -91,7 +77,7 @@ Read: `references/nexus-theme.md`
 
 Read: `references/data-fetching.md`
 
-### 4) Visual editing with Puck
+### 3) Visual editing with Puck
 
 1. Define components using `defineComponent` helper from the SDK
 2. Components are self-contained with props, rendering, and editor config
@@ -100,20 +86,20 @@ Read: `references/data-fetching.md`
 
 Read: `references/visual-editing.md`
 
-### 5) Customer authentication
+### 4) Customer authentication
 
 1. Customers authenticate via the Storefront GraphQL API
 2. Use `customerAccessTokenCreate` mutation to get tokens
 3. Include customer access token in subsequent requests
 4. Handle token renewal and deletion
 
-### 6) Environment variables
+### 5) Environment variables
 
 Set up required environment variables for the storefront.
 
 Read: `references/environment-variables.md`
 
-### 7) Development workflow
+### 6) Development workflow
 
 ```bash
 pnpm dev          # Start development server
@@ -142,6 +128,5 @@ pnpm start        # Start production server
 ## Escalation
 
 - See [Storefront overview](https://developers.finqu.com/build-with-finqu/storefront/overview.md.txt)
-- See [Nexus theme docs](https://developers.finqu.com/build-with-finqu/storefront/nexus-theme/overview.md.txt)
 - See [Storefront SDK docs](https://developers.finqu.com/build-with-finqu/storefront/storefront-sdk.md.txt)
-- See [Storefront GraphQL API reference](https://developers.finqu.com/reference/storefront/1.0.0.md.txt)
+- See [Storefront GraphQL API reference](https://developers.finqu.com/reference/storefront/1.1.0.md.txt)

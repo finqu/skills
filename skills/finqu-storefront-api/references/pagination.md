@@ -66,4 +66,4 @@ while (hasNextPage) {
 ## Full Reference
 
 - [Storefront API pagination](https://developers.finqu.com/apis-and-tools/storefront/pagination.md.txt)
-- [PageInfo object](https://developers.finqu.com/reference/storefront/1.0.0/objects/page-info.md.txt)
+- [PageInfo object](https://developers.finqu.com/reference/storefront/1.1.0/objects/page-info.md.txt)

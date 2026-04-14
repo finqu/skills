@@ -69,4 +69,4 @@ When rate limited (429), the response includes a structured error. Wait before r
 
 - [Storefront API error handling](https://developers.finqu.com/apis-and-tools/storefront/error-handling.md.txt)
 - [Storefront API rate limits](https://developers.finqu.com/apis-and-tools/storefront/rate-limits.md.txt)
-- [UserError object](https://developers.finqu.com/reference/storefront/1.0.0/objects/user-error.md.txt)
+- [UserError object](https://developers.finqu.com/reference/storefront/1.1.0/objects/user-error.md.txt)

@@ -27,8 +27,8 @@ Check for these indicators in order:
 1. **Liquid theme** — Look for `layout/theme.liquid`, `templates/` with `.liquid` files, `config/settings_schema.json`, `sections/` directory
    → Use **finqu-liquid-themes**
 
-2. **Headless storefront (Nexus/Next.js)** — Look for `next.config.*`, `@finqu/storefront-sdk` in `package.json`, `puck` configuration, `app/` directory with React components
-   → Use **finqu-storefront**
+2. **Headless storefront (Next.js)** — Look for `next.config.*`, `@finqu/storefront-sdk` in `package.json`, `puck` configuration, `app/` directory with React components
+   → Use **finqu-headless**
 
 3. **Finqu app/integration** — Look for `@finqu/app-link` in `package.json`, OAuth/install endpoint code, App Link initialization (`App.create(...)`)
    → Use **finqu-apps**
@@ -52,7 +52,7 @@ If no project files are found, route based on what the user wants to do:
 | User wants to...                                | Skill                    |
 | ----------------------------------------------- | ------------------------ |
 | Build or customize a theme                      | **finqu-liquid-themes**  |
-| Build a headless storefront                     | **finqu-storefront**     |
+| Build a headless storefront                     | **finqu-headless**       |
 | Build a partner app                             | **finqu-apps**           |
 | Integrate via REST API                          | **finqu-rest-api**       |
 | Query product/cart data via GraphQL             | **finqu-storefront-api** |
@@ -65,7 +65,7 @@ If no project files are found, route based on what the user wants to do:
 
 Some tasks span multiple skills:
 
-- **GraphQL API usage** in a storefront → primary: **finqu-storefront**, also read **finqu-storefront-api**
+- **GraphQL API usage** in a storefront → primary: **finqu-headless**, also read **finqu-storefront-api**
 - **CLI commands** in theme development → primary: **finqu-liquid-themes**, also read **finqu-cli**
 - **MCP tools** in AI Commerce → primary: **finqu-ai-commerce**, also read **finqu-storefront-mcp**
 

@@ -40,7 +40,20 @@ mutation {
 
 ### 2. Use token in requests
 
-Include the customer access token alongside the API key for customer-specific queries.
+Pass the customer access token via the `@storeContext` directive for customer-specific queries:
+
+```graphql
+query @storeContext(customerAccessToken: "TOKEN") {
+  customer {
+    id
+    firstName
+    lastName
+    email
+  }
+}
+```
+
+See `store-context.md` for full directive documentation.
 
 ### 3. Renew token
 
@@ -94,5 +107,6 @@ mutation {
 ## Full Reference
 
 - [Storefront authentication](https://developers.finqu.com/apis-and-tools/storefront/authentication.md.txt)
-- [customerAccessTokenCreate mutation](https://developers.finqu.com/reference/storefront/1.0.0/mutations/customer-access-token-create.md.txt)
-- [customerCreate mutation](https://developers.finqu.com/reference/storefront/1.0.0/mutations/customer-create.md.txt)
+- [Store context](https://developers.finqu.com/build-with-finqu/storefront/store-context.md.txt)
+- [customerAccessTokenCreate mutation](https://developers.finqu.com/reference/storefront/1.1.0/mutations/customer-access-token-create.md.txt)
+- [customerCreate mutation](https://developers.finqu.com/reference/storefront/1.1.0/mutations/customer-create.md.txt)

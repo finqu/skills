@@ -34,5 +34,4 @@ FINQU_STORE_DOMAIN=your-store.finqu.com
 
 ## Full Reference
 
-- [Nexus environment variables](https://developers.finqu.com/build-with-finqu/storefront/nexus-theme/environment-variables.md.txt)
 - [Storefront authentication](https://developers.finqu.com/build-with-finqu/storefront/authentication.md.txt)

@@ -19,7 +19,7 @@ Use this skill when:
 
 - **Store domain**: e.g., `your-store.finqu.com`
 - **API key**: Storefront API key from Channel settings (prefixed `fq_`)
-- **API version**: check the project for which version it uses; the latest stable is `1.0.0` but the project may target a different one
+- **API version**: check the project for which version it uses; the latest stable is `1.1.0` but the project may target a different one
 
 ## Procedure
 
@@ -49,12 +49,24 @@ Content-Type: application/json
 **Customer authentication** (for personalized data):
 
 1. Create customer access token via `customerAccessTokenCreate` mutation
-2. Include token in subsequent requests for customer-specific data
+2. Pass the token via the `@storeContext` directive for customer-specific queries
 3. Handle token renewal (`customerAccessTokenRenew`) and deletion
 
 Read: `references/authentication.md`
 
-### 2) Query data
+### 2) Use store context
+
+Use the `@storeContext` directive to control language, country, currency, or authenticate as a customer:
+
+```graphql
+query @storeContext(language: "fi", country: "FI", currency: "EUR") {
+  catalog { products { edges { node { id title price } } } }
+}
+```
+
+Read: `references/store-context.md`
+
+### 3) Query data
 
 Common queries:
 
@@ -64,13 +76,16 @@ Common queries:
 - `productGroup(id: ID!)` — Category/collection
 - `productGroups(...)` — Category listing
 - `cart(id: ID!)` — Cart contents
+- `customer` — Authenticated customer profile (requires `@storeContext` with `customerAccessToken`)
+- `order(id: ID!)` — Single order for authenticated customer
+- `orders(...)` — Order listing for authenticated customer
 - `store` — Store information
 - `menus` — Navigation menus
 - `countries`, `currencies`, `locales` — Internationalization data
 
 Read: `references/queries.md`
 
-### 3) Mutate data
+### 4) Mutate data
 
 Common mutations:
 
@@ -84,10 +99,11 @@ Common mutations:
 - `customerAccessTokenCreate` — Customer login
 - `customerAccessTokenDelete` — Customer logout
 - `customerCreate` — Customer registration
+- `customerUpdate` — Update customer profile (requires `@storeContext` with `customerAccessToken`)
 
 Read: `references/mutations.md`
 
-### 4) Handle pagination
+### 5) Handle pagination
 
 1. Use cursor-based pagination with `first`/`after` or `last`/`before`
 2. Check `pageInfo.hasNextPage` and `pageInfo.endCursor`
@@ -95,7 +111,7 @@ Read: `references/mutations.md`
 
 Read: `references/pagination.md`
 
-### 5) Handle errors
+### 6) Handle errors
 
 1. GraphQL errors appear in the `errors` array of the response
 2. Mutation errors appear in `userErrors` of the mutation payload
@@ -122,6 +138,6 @@ Read: `references/error-handling.md`
 ## Escalation
 
 - See [Storefront API overview](https://developers.finqu.com/apis-and-tools/storefront/overview.md.txt)
-- See [Storefront API reference v1.0.0](https://developers.finqu.com/reference/storefront/1.0.0.md.txt)
-- See [Storefront API queries](https://developers.finqu.com/reference/storefront/1.0.0/queries/product.md.txt)
-- See [Storefront API mutations](https://developers.finqu.com/reference/storefront/1.0.0/mutations/cart-create.md.txt)
+- See [Storefront API reference v1.1.0](https://developers.finqu.com/reference/storefront/1.1.0.md.txt)
+- See [Storefront API queries](https://developers.finqu.com/reference/storefront/1.1.0/queries/product.md.txt)
+- See [Storefront API mutations](https://developers.finqu.com/reference/storefront/1.1.0/mutations/cart-create.md.txt)

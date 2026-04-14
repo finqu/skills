@@ -135,6 +135,30 @@ mutation {
 - `customerAccessTokenDelete` — Logout
 - `customerAccessTokenRenew` — Refresh token
 - `customerCreate` — Register new customer
+- `customerUpdate` — Update customer profile (requires `@storeContext` with `customerAccessToken`)
+
+**Update customer:**
+
+```graphql
+mutation @storeContext(customerAccessToken: "TOKEN") {
+    customerUpdate(input: {
+        firstName: "John"
+        lastName: "Doe"
+        phone: "+1234567890"
+    }) {
+        customer {
+            id
+            firstName
+            lastName
+            phone
+        }
+        customerUserErrors {
+            field
+            message
+        }
+    }
+}
+```
 
 ## Handling userErrors
 
@@ -152,8 +176,9 @@ if (result.cartLinesAdd.userErrors.length > 0) {
 
 ## Full Reference
 
-- [cartCreate](https://developers.finqu.com/reference/storefront/1.0.0/mutations/cart-create.md.txt)
-- [cartLinesAdd](https://developers.finqu.com/reference/storefront/1.0.0/mutations/cart-lines-add.md.txt)
-- [cartLinesUpdate](https://developers.finqu.com/reference/storefront/1.0.0/mutations/cart-lines-update.md.txt)
-- [cartLinesRemove](https://developers.finqu.com/reference/storefront/1.0.0/mutations/cart-lines-remove.md.txt)
-- [cartDiscountCodesUpdate](https://developers.finqu.com/reference/storefront/1.0.0/mutations/cart-discount-codes-update.md.txt)
+- [cartCreate](https://developers.finqu.com/reference/storefront/1.1.0/mutations/cart-create.md.txt)
+- [cartLinesAdd](https://developers.finqu.com/reference/storefront/1.1.0/mutations/cart-lines-add.md.txt)
+- [cartLinesUpdate](https://developers.finqu.com/reference/storefront/1.1.0/mutations/cart-lines-update.md.txt)
+- [cartLinesRemove](https://developers.finqu.com/reference/storefront/1.1.0/mutations/cart-lines-remove.md.txt)
+- [cartDiscountCodesUpdate](https://developers.finqu.com/reference/storefront/1.1.0/mutations/cart-discount-codes-update.md.txt)
+- [customerUpdate](https://developers.finqu.com/reference/storefront/1.1.0/mutations/customer-update.md.txt)
