@@ -45,6 +45,10 @@ Check for these indicators in order:
 7. **Customer communications** — Look for MJML/HTML email templates with Finqu Liquid variables (`{{ customer.* }}`, `{{ order.* }}`), print templates
    → Use **finqu-customer-comms**
 
+8. **Cool UI consumer** — Look for `@finqu/cool` in `package.json` dependencies,
+   Cool UI CSS or SCSS imports, `data-toggle` attributes in templates, `Cool.initialize()` calls
+   → Use **finqu-cool**
+
 ### 1) Route by task type (if no project detected)
 
 If no project files are found, route based on what the user wants to do:
@@ -60,6 +64,7 @@ If no project files are found, route based on what the user wants to do:
 | Set up AI agents, Workers, or Playbooks         | **finqu-ai-commerce**    |
 | Build an AI shopping assistant                  | **finqu-storefront-mcp** |
 | Customize emails, prints, or marketing messages | **finqu-customer-comms** |
+| Use Cool UI components, utilities, or theming   | **finqu-cool**           |
 
 ### 2) Cross-cutting concerns
 
@@ -68,6 +73,8 @@ Some tasks span multiple skills:
 - **GraphQL API usage** in a storefront → primary: **finqu-headless**, also read **finqu-storefront-api**
 - **CLI commands** in theme development → primary: **finqu-liquid-themes**, also read **finqu-cli**
 - **MCP tools** in AI Commerce → primary: **finqu-ai-commerce**, also read **finqu-storefront-mcp**
+- **Cool UI in a Liquid theme** → primary: **finqu-liquid-themes**, also read **finqu-cool** for component usage
+- **Cool UI in a headless storefront** → primary: **finqu-storefront**, also read **finqu-cool** for component usage
 
 ## Verification
 

@@ -20,6 +20,7 @@ Agent Skills are portable bundles of instructions, checklists, and reference doc
 | **finqu-ai-commerce**    | AI Commerce — Success Agent, Workers, Playbooks, Guidelines, MCP Tools              |
 | **finqu-customer-comms** | Customer communications — emails, prints, marketing messages with MJML/Liquid       |
 | **finqu-storefront-mcp** | Storefront MCP server for AI shopping assistants                                    |
+| **finqu-cool**           | Cool UI toolkit — components, utility classes, theming with CSS custom properties   |
 
 ## Quick Start
 
