@@ -16,22 +16,22 @@ All values are stored in `config/settings_data.json`.
 
 ```json
 {
-    "name": "theme-identifier",
-    "theme_name": "My Theme",
-    "theme_author": "Author Name",
-    "theme_image": "assets/theme-image.jpg",
-    "theme_documentation_url": "https://docs.example.com",
-    "theme_demo_url": "https://demo.example.com",
-    "section_categories": [{ "id": "theme-featured", "name": { "en": "Featured" } }],
-    "block_categories": [{ "id": "content", "name": { "en": "Content" } }],
-    "settings": [
-        {
-            "id": "primary_color",
-            "type": "color",
-            "label": { "en": "Primary color" },
-            "default": "#000000"
-        }
-    ]
+  "name": "theme-identifier",
+  "theme_name": "My Theme",
+  "theme_author": "Author Name",
+  "theme_image": "assets/theme-image.jpg",
+  "theme_documentation_url": "https://docs.example.com",
+  "theme_demo_url": "https://demo.example.com",
+  "section_categories": [{ "id": "theme-featured", "name": { "en": "Featured" } }],
+  "block_categories": [{ "id": "content", "name": { "en": "Content" } }],
+  "settings": [
+    {
+      "id": "primary_color",
+      "type": "color",
+      "label": { "en": "Primary color" },
+      "default": "#000000"
+    }
+  ]
 }
 ```
 
@@ -41,12 +41,13 @@ Every setting supports:
 
 ```json
 {
-    "id": "unique_id",
-    "type": "setting_type",
-    "label": { "en": "Display Label", "fi": "Näyttönimi" },
-    "info": "Help text shown to the user",
-    "default": "default_value",
-    "placeholder": "Placeholder text"
+  "id": "unique_id",
+  "type": "setting_type",
+  "label": { "en": "Display Label", "fi": "Näyttönimi" },
+  "info": "Help text shown to the user",
+  "default": "default_value",
+  "placeholder": "Placeholder text",
+  "conditions": ["show_button eq true"]
 }
 ```
 
@@ -66,8 +67,8 @@ All user-facing text (`label`, `info`, `placeholder`) can be localized with lang
 | `range`         | Numeric slider (min/max/step)                                |
 | `number`        | Numeric input                                                |
 | `datetime`      | Date and time picker                                         |
-| `richtext`      | Rich text editor                                             |
-| `image_picker`  | Image selector/uploader                                      |
+| `richtext`      | Rich text editor (`size`, `mode`)                            |
+| `image_picker`  | Image selector/uploader (returns object with `src`, etc.)    |
 | `font_picker`   | Font family selector                                         |
 | `margin`        | CSS margin (top/right/bottom/left)                           |
 | `padding`       | CSS padding                                                  |
@@ -85,26 +86,42 @@ All user-facing text (`label`, `info`, `placeholder`) can be localized with lang
 | `spacer`        | Visual spacer                                                |
 | `separator`     | Visual separator                                             |
 | `hidden`        | Hidden value                                                 |
+| `setting_page`  | Nested settings page for grouping theme settings             |
+| `style_editor`  | Theme-level color style presets (used with `style_picker`)   |
+| `style_picker`  | Select a preset from a `style_editor` (sections/blocks)      |
+
+## Style Picker and Style Editor
+
+These form a **define-and-select** pattern for reusable color styles:
+
+1. **Define** presets in theme settings with `style_editor` (creates named color presets)
+2. **Select** a preset in section/block settings with `style_picker` via `styles_id`
+
+The stored value of a `style_picker` is the preset id string (e.g. `"general"`, `"dark"`).
 
 ## Conditional Rendering
 
-Settings can show/hide based on other settings:
+Settings can show/hide based on other settings using string conditions:
 
 ```json
 {
-    "id": "button_text",
-    "type": "text",
-    "label": { "en": "Button text" },
-    "conditions": [{ "id": "show_button", "value": true, "operator": "eq" }]
+  "id": "button_text",
+  "type": "text",
+  "label": { "en": "Button text" },
+  "conditions": ["show_button eq true", "items_count gte 10"]
 }
 ```
+
+All conditions must be true for the setting to be shown.
 
 **Operators:** `eq`, `gt`, `gte`, `lt`, `lte`, `contains`, `in`
 
 ## Grouping Settings
 
+- **Setting pages** — Use `setting_page` type to nest theme settings hierarchically
 - **Tabs** — Horizontal tab groups (max 2 nested levels, max 4 per row)
 - **Lists** — Vertical list groups (for many groups or simpler layout)
+- **Setting blocks** — Reusable sortable blocks within section settings (must be in their own tab/list)
 
 ## settings_data.json
 
@@ -115,11 +132,17 @@ Stores all current values:
   "current": {
     "primary_color": "#333333",
     "sections": {
-      "header": { "type": "header", "settings": { ... } }
+      "header": { "type": "header", "settings": {} }
     }
   },
   "presets": {
-    "default": { ... }
+    "default": {
+      "name": "Default",
+      "default": true,
+      "settings": {
+        "primary_color": "#333333"
+      }
+    }
   }
 }
 ```

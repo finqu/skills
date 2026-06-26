@@ -1,68 +1,129 @@
 # Setup
 
-How to connect to a Finqu store's MCP server.
+How to enable UCP and connect an MCP client to a Finqu store.
 
-## MCP Endpoint
+## Prerequisites
 
-Every Finqu store with MCP enabled exposes:
+- A Finqu sales channel with a live storefront domain
+- UCP enabled on the channel (optionally MCP server)
+- A channel API key (`fq_secret_…`) or allowed anonymous/signed access
+
+## Enable UCP (merchants)
+
+In **Channel Settings → API**:
+
+1. Check **Enable UCP**
+2. Optionally check **Enable MCP server** for `/mcp` access
+3. Configure **Agent access** (anonymous, signed, API keys)
+4. Create an API key for production agents
+5. Save
+
+Verify:
+
+```bash
+curl -s https://{shop-domain}/.well-known/ucp | jq .
+curl -s -H "Authorization: Bearer fq_secret_YOUR_KEY" \
+  https://{shop-domain}/api/ucp
+```
+
+## MCP endpoint
+
+When MCP server is enabled:
 
 ```
-https://your-store.finqu.com/mcp
+https://{shop-domain}/mcp
 ```
 
 ## Authentication
 
-Use a Channel API key (Storefront API key) from the store's Channel settings:
-
+```http
+Authorization: Bearer fq_secret_…
 ```
-Authorization: Bearer fq_your_api_key
+
+See `references/authentication.md` for signed and anonymous tiers.
+
+## Platform profile (required for MCP tools)
+
+Publish your platform profile at `https://your-platform.example/.well-known/ucp`, then pass it in every MCP tool call:
+
+```json
+{
+  "meta": {
+    "ucp-agent": {
+      "profile": "https://your-platform.example/.well-known/ucp"
+    }
+  }
+}
 ```
 
 ## Connecting with Claude Desktop
-
-Add to your Claude Desktop MCP configuration (`claude_desktop_config.json`):
 
 ```json
 {
     "mcpServers": {
         "finqu-store": {
-            "url": "https://your-store.finqu.com/mcp",
+            "url": "https://{shop-domain}/mcp",
             "headers": {
-                "Authorization": "Bearer fq_your_api_key"
+                "Authorization": "Bearer fq_secret_YOUR_KEY"
             }
         }
     }
 }
 ```
 
-## Connecting Programmatically
+Note: Claude Desktop may not pass `meta.ucp-agent.profile` automatically. Custom agent frameworks give full control over tool call metadata.
 
-Use any MCP client library:
+## Connecting programmatically
 
 ```typescript
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 
-const transport = new StreamableHTTPClientTransport(new URL('https://your-store.finqu.com/mcp'), {
-    requestInit: {
-        headers: {
-            Authorization: 'Bearer fq_your_api_key',
+const transport = new StreamableHTTPClientTransport(
+    new URL('https://{shop-domain}/mcp'),
+    {
+        requestInit: {
+            headers: {
+                Authorization: 'Bearer fq_secret_YOUR_KEY',
+            },
+        },
+    },
+);
+
+const client = new Client({ name: 'shopping-agent', version: '1.0.0' });
+await client.connect(transport);
+
+const { tools } = await client.listTools();
+```
+
+When calling tools, include the UCP agent metadata:
+
+```typescript
+await client.callTool({
+    name: 'search_catalog',
+    arguments: {
+        query: 'blue shirt',
+        limit: 5,
+    },
+    // Pass via your MCP client's meta/_meta field:
+    _meta: {
+        'ucp-agent': {
+            profile: 'https://your-platform.example/.well-known/ucp',
         },
     },
 });
-
-const client = new Client({ name: 'my-app', version: '1.0.0' });
-await client.connect(transport);
-
-// List available tools
-const tools = await client.listTools();
-console.log(tools);
 ```
 
 ## Transport
 
-The Storefront MCP uses **Streamable HTTP** transport (the standard MCP transport method).
+UCP MCP uses **Streamable HTTP** transport.
+
+## REST alternative
+
+If MCP is not enabled, use the REST API at `https://{shop-domain}/api/ucp` with the same authentication and `UCP-Agent` header. See the [REST API reference](https://developers.finqu.com/reference/ucp/rest-api.md.txt).
 
 ## Full Reference
 
-- [Storefront MCP overview](https://developers.finqu.com/apis-and-tools/storefront-mcp/overview.md.txt)
+- [MCP overview](https://developers.finqu.com/apis-and-tools/mcp/overview.md.txt)
+- [Activating UCP](https://developers.finqu.com/ai/agentic-commerce/activating-ucp.md.txt)
+- [MCP Transport](https://developers.finqu.com/reference/ucp/mcp-transport.md.txt)

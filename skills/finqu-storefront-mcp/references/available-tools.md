@@ -1,107 +1,106 @@
-# Available Tools
+# Available MCP Tools
 
-MCP tools provided by the Finqu Storefront MCP server.
+UCP shopping capabilities exposed as MCP tools at `https://{shop-domain}/mcp`.
 
-## Product Tools
+**Required on every call:** `meta.ucp-agent.profile` pointing to your platform's `/.well-known/ucp`.
 
-### search_products
+These UCP tool names replace the former Storefront MCP names (`search_products`, `add_cart_lines`, `get_cart_checkout_url`, etc.).
 
-Search for products by keyword with filtering and sorting.
+## Catalog tools
 
-**Parameters:**
+### search_catalog
 
-| Parameter | Type    | Description                                 |
-| --------- | ------- | ------------------------------------------- |
-| `query`   | string  | Search keyword                              |
-| `first`   | number  | Number of results (default: 10)             |
-| `sortKey` | string  | Sort field (e.g., TITLE, PRICE, CREATED_AT) |
-| `reverse` | boolean | Reverse sort order                          |
+Full-text product search with filters and pagination.
 
-**Returns:** List of matching products with basic details (ID, title, handle, price, image URL).
+REST equivalent: `POST /catalog/search`
+
+**Parameters:** `query`, `filters`, `limit`, `cursor`, `context` (language, currency, country)
+
+**Returns:** `products` array and `pagination` with `cursor` for next page.
+
+### lookup_catalog
+
+Batch lookup of products or variants by ID.
+
+REST equivalent: `POST /catalog/lookup`
+
+**Parameters:** `ids` (array of product or variant IDs)
+
+**Returns:** Full product objects including variants, pricing, and customization metadata.
 
 ### get_product
 
-Get detailed information about a specific product.
+Get a single product by ID.
 
-**Parameters:**
+REST equivalent: `POST /catalog/product`
 
-| Parameter | Type   | Description |
-| --------- | ------ | ----------- |
-| `id`      | string | Product ID  |
+**Parameters:** `id` (product ID)
 
-**Returns:** Full product details including title, description, variants, images, pricing, availability.
+**Returns:** Full product details including `metadata.customizations` on variants.
 
-## Cart Tools
+## Cart tools
 
 ### create_cart
 
-Create a new shopping cart, optionally with initial items.
+Create a cart from line items.
 
-**Parameters:**
+REST equivalent: `POST /carts`
 
-| Parameter | Type  | Description                                         |
-| --------- | ----- | --------------------------------------------------- |
-| `lines`   | array | Optional initial cart lines (variant ID + quantity) |
+**Parameters:** `line_items` — each with `item.id` (variant ID), `quantity`, and optional `customizations`
 
-**Returns:** Cart ID for use in subsequent operations.
+**Returns:** Cart with `id`, `line_items`, `totals`, `continue_url`, `messages`
 
-### add_cart_lines
-
-Add products to an existing cart.
-
-**Parameters:**
-
-| Parameter | Type   | Description                          |
-| --------- | ------ | ------------------------------------ |
-| `cartId`  | string | Cart ID                              |
-| `lines`   | array  | Items to add (variant ID + quantity) |
-
-### update_cart_lines
-
-Update quantities or properties of cart items.
-
-**Parameters:**
-
-| Parameter | Type   | Description                              |
-| --------- | ------ | ---------------------------------------- |
-| `cartId`  | string | Cart ID                                  |
-| `lines`   | array  | Lines to update (line ID + new quantity) |
-
-### remove_cart_lines
-
-Remove items from a cart.
-
-**Parameters:**
-
-| Parameter | Type   | Description            |
-| --------- | ------ | ---------------------- |
-| `cartId`  | string | Cart ID                |
-| `lineIds` | array  | IDs of lines to remove |
+**Recommended:** `meta.idempotency-key` to prevent duplicate carts.
 
 ### get_cart
 
-Get current cart contents and totals.
+Retrieve a cart by ID.
 
-**Parameters:**
+REST equivalent: `GET /carts/{id}`
 
-| Parameter | Type   | Description |
-| --------- | ------ | ----------- |
-| `cartId`  | string | Cart ID     |
+**Parameters:** `id` (cart ID)
 
-**Returns:** Cart contents, line items, quantities, prices, estimated totals.
+**Returns:** Cart contents, totals (minor currency units), `continue_url`, `discounts`, `messages`.
 
-### get_cart_checkout_url
+### update_cart
 
-Generate a checkout URL for the cart.
+Replace all line items on a cart (full update, not incremental add/remove).
 
-**Parameters:**
+REST equivalent: `PUT /carts/{id}`
 
-| Parameter | Type   | Description |
-| --------- | ------ | ----------- |
-| `cartId`  | string | Cart ID     |
+**Parameters:** `id` (cart ID), `line_items` (complete replacement set)
 
-**Returns:** URL that the customer can open in a browser to complete checkout.
+Replaces the former separate `add_cart_lines`, `update_cart_lines`, and `remove_cart_lines` tools.
+
+### cancel_cart
+
+Cancel a cart (clear all items).
+
+REST equivalent: `POST /carts/{id}/cancel`
+
+**Parameters:** `id` (cart ID)
+
+**Required:** `meta.idempotency-key`
+
+## Checkout handoff
+
+There is no `get_cart_checkout_url` tool. Cart responses include `continue_url` — a buyer-facing URL to complete checkout in the merchant's storefront. The checkout API (`dev.ucp.shopping.checkout`) is not yet available on Finqu.
+
+## Product customizations
+
+Before adding configurable products to a cart:
+
+1. Search or look up the product
+2. Read `metadata.customizations` on the chosen variant
+3. Include `customizations: [{ "id": "…", "value": "…" }]` on each line item
+4. Required customization groups must have at least one selection
+
+## Discount codes
+
+When the `dev.ucp.shopping.discount` capability is negotiated, cart create/update requests may include `discounts.codes`.
 
 ## Full Reference
 
-- [Storefront MCP tools](https://developers.finqu.com/apis-and-tools/storefront-mcp/tools.md.txt)
+- [MCP Transport](https://developers.finqu.com/reference/ucp/mcp-transport.md.txt)
+- [REST API](https://developers.finqu.com/reference/ucp/rest-api.md.txt)
+- [MCP OpenRPC schema](https://ucp.dev/2026-04-08/services/shopping/mcp.openrpc.json)
