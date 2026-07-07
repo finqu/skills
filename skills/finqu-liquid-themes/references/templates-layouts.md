@@ -21,7 +21,6 @@ Templates control the layout and content of store pages. Layouts define shared s
 | `customers/login.liquid`            | Customer login               |
 | `customers/register.liquid`         | Customer registration        |
 | `customers/account.liquid`          | Account summary              |
-| `customers/orders.liquid`           | Customer orders list         |
 | `customers/order.liquid`            | Single order detail          |
 | `customers/wishlist.liquid`         | Customer wishlist            |
 | `customers/edit_account.liquid`     | Edit account                 |
@@ -30,21 +29,18 @@ Templates control the layout and content of store pages. Layouts define shared s
 | `customers/reset_password.liquid`   | Password reset               |
 | `customers/activate_account.liquid` | Account activation           |
 
-## Template Rendering
+> **Deprecated:** `customers/orders.liquid` is no longer part of storefront themes. Customer order history is rendered by the checkout theme using `orders.liquid`.
 
-Templates include sections in two ways:
+## Template Variants
 
-**Dynamic sections** — managed by the theme editor, reorderable:
+Create alternative layouts for specific products or pages:
 
-```liquid
-{{ content_for_index }}
-```
+- `product.campaign.liquid` — Campaign product layout
+- `page.landing.liquid` — Landing page layout
 
-**Static sections** — fixed position, not affected by editor:
+The template **type** is the part before the first dot. `product.liquid` and `product.campaign.liquid` both have type `product`.
 
-```liquid
-{% section 'announcement-bar' %}
-```
+Merchants assign alternate templates to specific products or pages in the Finqu admin. As a theme author, you only create the template files.
 
 ## Template Schema
 
@@ -63,17 +59,50 @@ Templates can define metadata and required sections:
 {% endschema %}
 ```
 
-- `template_sections` — Sticky sections that are always present (cannot be removed by the user)
-- Users can still add, reorder, and remove non-sticky sections via the editor
+- `template_sections` — Sticky sections that are always present (cannot be removed, but can be reordered)
+- All sections — sticky and user-added — render at `{{ content_for_index }}`
 
-## Template Variants
+## Section Ordering Model
 
-Create alternative layouts for specific products or pages:
+| Placement              | How you author it                                      | Merchant can edit?              |
+| ---------------------- | ------------------------------------------------------ | ------------------------------- |
+| Shared header/footer   | `{% sections 'header-group' %}` in layout              | Yes — section group             |
+| Fixed in layout        | `{% section 'announcement-bar' %}` before layout content | No                            |
+| Per-template content   | `{{ content_for_index }}` in template                | Yes — add/reorder sections      |
+| Fixed in template      | `{% section 'product-details' %}` above/below index    | No                              |
+| Sticky defaults        | `template_sections` in template schema                 | Reorderable, not removable      |
 
-- `product.campaign.liquid` — Campaign product layout
-- `page.landing.liquid` — Landing page layout
+**Ordering rule:** Content **above** `{{ content_for_index }}` renders before merchant-added sections; content **below** renders after. Same before/after logic applies in the layout around `{{ content_for_layout }}`.
 
-Assign different templates to specific products/pages in the Finqu admin.
+## Section Groups
+
+Shared, merchant-managed section regions (header, footer) defined in `section-groups/` and rendered with:
+
+```liquid
+{% sections 'header-group' %}
+
+{{ content_for_layout }}
+
+{% sections 'footer-group' %}
+```
+
+Group section data is stored once and shared across all templates that include the group.
+
+|                          | `{% sections 'group-name' %}`              | `{% section 'section-name' %}`     |
+| ------------------------ | ------------------------------------------- | ---------------------------------- |
+| Merchant editable        | Yes — add, remove, reorder sections         | No — fixed in code                 |
+| Shared across pages      | Yes                                         | No — only where the tag appears    |
+| Best for                 | Headers, footers, announcement bars         | Truly fixed, theme-controlled content |
+
+See `references/sections.md` for defining groups and opting sections into them.
+
+## Static Sections
+
+```liquid
+{% section 'announcement-bar' %}
+```
+
+Static sections are not affected by the theme editor. For editable cross-page regions, prefer section groups.
 
 ## Layouts
 
@@ -96,7 +125,7 @@ Layouts define the common structure (HTML shell, header, footer) shared across t
 </html>
 ```
 
-- `{{ content_for_header }}` — **Required.** Outputs scripts, styles, and meta tags injected by the platform.
+- `{{ content_for_header }}` — **Required.** Scripts, styles, and meta tags injected by the platform.
 - `{{ content_for_layout }}` — **Required.** Renders the current template content.
 
 **Using layouts in templates:**
@@ -105,7 +134,9 @@ Layouts define the common structure (HTML shell, header, footer) shared across t
 {% layout 'theme' %}
 ```
 
-Create multiple layouts for different purposes (e.g., `layout/campaign.liquid`).
+Use `{% layout 'none' %}` for standalone pages that should not wrap in a layout (e.g. `password.liquid` or minimal landing pages).
+
+For production themes, prefer section groups for merchant-editable headers and footers.
 
 ## Full Reference
 
