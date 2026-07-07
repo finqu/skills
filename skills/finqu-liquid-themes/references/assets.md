@@ -12,13 +12,13 @@ The `asset_url` filter resolves the correct URL for both source assets and compi
 
 ## File Types
 
-| File Type               | Processing                                                |
-| ----------------------- | --------------------------------------------------------- |
-| `.css`                  | Served as-is with cachebusting                            |
-| `.scss`, `.scss.liquid` | Compiled with Dart Sass, then served                      |
+| File Type                   | Processing                                                |
+| --------------------------- | --------------------------------------------------------- |
+| `.css`                      | Served as-is with cachebusting                            |
+| `.scss`, `.scss.liquid`     | Compiled with Dart Sass, then served                      |
 | `.liquid` (any + `.liquid`) | Liquid variables processed, then served with cachebusting |
-| `.js`, `.js.liquid`     | Served/processed with cachebusting                        |
-| Images, fonts           | Served as-is with cachebusting                            |
+| `.js`, `.js.liquid`         | Served/processed with cachebusting                        |
+| Images, fonts               | Served as-is with cachebusting                            |
 
 ## SCSS with Liquid
 
@@ -63,11 +63,11 @@ For dynamic values, use a `.scss.liquid` or `.js.liquid` file in `assets/` inste
 
 ## Asset Filters
 
-| Filter                 | Use case                                              |
-| ---------------------- | ----------------------------------------------------- |
+| Filter                 | Use case                                               |
+| ---------------------- | ------------------------------------------------------ |
 | `asset_url`            | URL for any file in `assets/` or compiled in `public/` |
-| `inline_asset_content` | Inline SVG or small file content into HTML            |
-| `svg_tag`              | Render an SVG asset with optional attributes          |
+| `inline_asset_content` | Inline SVG or small file content into HTML             |
+| `svg_tag`              | Render an SVG asset with optional attributes           |
 
 ```liquid
 <span class="icon">{{ 'icon-account.svg' | inline_asset_content }}</span>

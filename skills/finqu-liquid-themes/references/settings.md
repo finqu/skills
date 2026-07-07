@@ -4,11 +4,11 @@ Settings allow merchants to customize theme appearance and behavior without edit
 
 ## Setting Levels
 
-| Level            | Defined in                               | Scope                            |
-| ---------------- | ---------------------------------------- | -------------------------------- |
-| Theme settings   | `config/settings_schema.json`            | Global — applies to entire store |
-| Section settings | Section's `{% schema %}`                 | Per section instance             |
-| Block settings   | Block's `{% schema %}`                   | Per block instance               |
+| Level            | Defined in                    | Scope                            |
+| ---------------- | ----------------------------- | -------------------------------- |
+| Theme settings   | `config/settings_schema.json` | Global — applies to entire store |
+| Section settings | Section's `{% schema %}`      | Per section instance             |
+| Block settings   | Block's `{% schema %}`        | Per block instance               |
 
 All values are stored in `config/settings_data.json`.
 
@@ -32,12 +32,12 @@ All values are stored in `config/settings_data.json`.
 
 ```json
 {
-  "id": "unique_id",
-  "type": "setting_type",
-  "label": { "en": "Display Label", "fi": "Näyttönimi" },
-  "info": "Help text shown to the user",
-  "default": "default_value",
-  "placeholder": "Placeholder text"
+    "id": "unique_id",
+    "type": "setting_type",
+    "label": { "en": "Display Label", "fi": "Näyttönimi" },
+    "info": "Help text shown to the user",
+    "default": "default_value",
+    "placeholder": "Placeholder text"
 }
 ```
 
@@ -105,10 +105,10 @@ Settings can show/hide based on other settings using string conditions:
 
 ```json
 {
-  "id": "button_text",
-  "type": "text",
-  "label": { "en": "Button text" },
-  "conditions": ["show_button eq true"]
+    "id": "button_text",
+    "type": "text",
+    "label": { "en": "Button text" },
+    "conditions": ["show_button eq true"]
 }
 ```
 
@@ -134,8 +134,8 @@ Multiple conditions — all must be true:
 | `range`         | Numeric slider (min/max/step)                                |
 | `number`        | Numeric input                                                |
 | `datetime`      | Date and time picker                                         |
-| `richtext`      | Rich text editor                                             |
-| `image_picker`  | Image selector/uploader                                      |
+| `richtext`      | Rich text editor (`size`, `mode`)                            |
+| `image_picker`  | Image selector/uploader (returns object with `src`, etc.)    |
 | `font_picker`   | Font family selector                                         |
 | `margin`        | CSS margin (top/right/bottom/left)                           |
 | `padding`       | CSS padding                                                  |
@@ -166,7 +166,7 @@ Stores all current values:
   "current": {
     "primary_color": "#333333",
     "sections": {
-      "header": { "type": "header", "settings": { ... } }
+      "header": { "type": "header", "settings": {} }
     }
   },
   "presets": {

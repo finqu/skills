@@ -33,21 +33,21 @@ Every section defines its configuration in a `{% schema %}` tag:
 
 ## Schema Properties
 
-| Property         | Required | Description                                                                 |
-| ---------------- | -------- | --------------------------------------------------------------------------- |
-| `name`           | Yes      | Display name (localized object or `t:` key)                                 |
-| `description`    | No       | Description shown in the editor                                             |
-| `category`       | Yes      | Must match an entry in `settings_schema.json` `section_categories`          |
-| `tag`            | No       | HTML tag or identifier                                                      |
-| `class`          | No       | CSS classes applied to the section wrapper                                  |
-| `keywords`       | No       | Search keywords for the add-section picker (string array or localized)      |
-| `templates`      | No       | Template types the section is available on. Empty/absent = all templates    |
-| `section_groups` | No       | Restrict section to specific section groups (group-only when set)           |
-| `is_creatable`   | No       | If `false`, merchants cannot add this section. Default `true`               |
-| `allowed_blocks` | No     | Whitelist of block names at the section's top level                         |
-| `settings`       | No       | Setting definitions (array or grouped object with `groups`)                   |
-| `containers`     | No       | Named drop zones within the section, each with optional preset blocks       |
-| `presets`        | No       | Predefined variants shown in the add-section picker                         |
+| Property         | Required | Description                                                              |
+| ---------------- | -------- | ------------------------------------------------------------------------ |
+| `name`           | Yes      | Display name (localized object or `t:` key)                              |
+| `description`    | No       | Description shown in the editor                                          |
+| `category`       | Yes      | Must match an entry in `settings_schema.json` `section_categories`       |
+| `tag`            | No       | HTML tag or identifier                                                   |
+| `class`          | No       | CSS classes applied to the section wrapper                               |
+| `keywords`       | No       | Search keywords for the add-section picker (string array or localized)   |
+| `templates`      | No       | Template types the section is available on. Empty/absent = all templates |
+| `section_groups` | No       | Restrict section to specific section groups (group-only when set)        |
+| `is_creatable`   | No       | If `false`, merchants cannot add this section. Default `true`            |
+| `allowed_blocks` | No       | Whitelist of block names at the section's top level                      |
+| `settings`       | No       | Setting definitions (array or grouped object with `groups`)              |
+| `containers`     | No       | Named drop zones within the section, each with optional preset blocks    |
+| `presets`        | No       | Predefined variants shown in the add-section picker                      |
 
 See the [section schema definition](https://schemas.finqu.com/liquid/section.schema.json) for the authoritative shape.
 
@@ -59,13 +59,13 @@ Section groups are shared, merchant-managed collections of sections (e.g. header
 
 ```json
 {
-  "name": { "en": "Header", "fi": "Ylätunniste" },
-  "max_sections": 10,
-  "allowed_sections": ["announcement-bar", "header", "navigation"],
-  "default_sections": [
-    { "name": "announcement-bar", "title": "Announcement", "settings": {}, "blocks": [], "sticky": false },
-    { "name": "header", "title": "Header", "settings": {}, "blocks": [], "sticky": true }
-  ]
+    "name": { "en": "Header", "fi": "Ylätunniste" },
+    "max_sections": 10,
+    "allowed_sections": ["announcement-bar", "header", "navigation"],
+    "default_sections": [
+        { "name": "announcement-bar", "title": "Announcement", "settings": {}, "blocks": [], "sticky": false },
+        { "name": "header", "title": "Header", "settings": {}, "blocks": [], "sticky": true }
+    ]
 }
 ```
 

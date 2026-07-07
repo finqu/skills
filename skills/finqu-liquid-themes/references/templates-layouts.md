@@ -64,13 +64,13 @@ Templates can define metadata and required sections:
 
 ## Section Ordering Model
 
-| Placement              | How you author it                                      | Merchant can edit?              |
-| ---------------------- | ------------------------------------------------------ | ------------------------------- |
-| Shared header/footer   | `{% sections 'header-group' %}` in layout              | Yes — section group             |
-| Fixed in layout        | `{% section 'announcement-bar' %}` before layout content | No                            |
-| Per-template content   | `{{ content_for_index }}` in template                | Yes — add/reorder sections      |
-| Fixed in template      | `{% section 'product-details' %}` above/below index    | No                              |
-| Sticky defaults        | `template_sections` in template schema                 | Reorderable, not removable      |
+| Placement            | How you author it                                        | Merchant can edit?         |
+| -------------------- | -------------------------------------------------------- | -------------------------- |
+| Shared header/footer | `{% sections 'header-group' %}` in layout                | Yes — section group        |
+| Fixed in layout      | `{% section 'announcement-bar' %}` before layout content | No                         |
+| Per-template content | `{{ content_for_index }}` in template                    | Yes — add/reorder sections |
+| Fixed in template    | `{% section 'product-details' %}` above/below index      | No                         |
+| Sticky defaults      | `template_sections` in template schema                   | Reorderable, not removable |
 
 **Ordering rule:** Content **above** `{{ content_for_index }}` renders before merchant-added sections; content **below** renders after. Same before/after logic applies in the layout around `{{ content_for_layout }}`.
 
@@ -88,11 +88,11 @@ Shared, merchant-managed section regions (header, footer) defined in `section-gr
 
 Group section data is stored once and shared across all templates that include the group.
 
-|                          | `{% sections 'group-name' %}`              | `{% section 'section-name' %}`     |
-| ------------------------ | ------------------------------------------- | ---------------------------------- |
-| Merchant editable        | Yes — add, remove, reorder sections         | No — fixed in code                 |
-| Shared across pages      | Yes                                         | No — only where the tag appears    |
-| Best for                 | Headers, footers, announcement bars         | Truly fixed, theme-controlled content |
+|                     | `{% sections 'group-name' %}`       | `{% section 'section-name' %}`        |
+| ------------------- | ----------------------------------- | ------------------------------------- |
+| Merchant editable   | Yes — add, remove, reorder sections | No — fixed in code                    |
+| Shared across pages | Yes                                 | No — only where the tag appears       |
+| Best for            | Headers, footers, announcement bars | Truly fixed, theme-controlled content |
 
 See `references/sections.md` for defining groups and opting sections into them.
 

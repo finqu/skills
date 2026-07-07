@@ -23,9 +23,9 @@ Keys are nested in the JSON file:
 
 ```json
 {
-  "general": {
-    "add_to_cart": "Add to cart"
-  }
+    "general": {
+        "add_to_cart": "Add to cart"
+    }
 }
 ```
 
@@ -43,10 +43,10 @@ locales/
   fi.schema.json
 ```
 
-| File                 | Purpose                                                              |
-| -------------------- | -------------------------------------------------------------------- |
-| `{lang}.json`        | Strings customers see on the storefront                              |
-| `{lang}.schema.json` | Labels merchants see in the designer (sections, blocks, settings)    |
+| File                 | Purpose                                                           |
+| -------------------- | ----------------------------------------------------------------- |
+| `{lang}.json`        | Strings customers see on the storefront                           |
+| `{lang}.schema.json` | Labels merchants see in the designer (sections, blocks, settings) |
 
 Schema translations are merged into the corresponding locale at runtime. You do not need to duplicate schema labels inside `fi.json` unless the same string is also used on the storefront.
 
@@ -56,9 +56,9 @@ In schema JSON, reference schema locale files with a `t:` prefix:
 
 ```json
 {
-  "type": "checkbox",
-  "id": "showPromotion",
-  "label": "t:blocks.product-title-price.settings.showPromotion.label"
+    "type": "checkbox",
+    "id": "showPromotion",
+    "label": "t:blocks.product-title-price.settings.showPromotion.label"
 }
 ```
 
@@ -66,15 +66,15 @@ The path after `t:` maps to nested keys in `{lang}.schema.json`:
 
 ```json
 {
-  "blocks": {
-    "product-title-price": {
-      "settings": {
-        "showPromotion": {
-          "label": "Näytä tarjous"
+    "blocks": {
+        "product-title-price": {
+            "settings": {
+                "showPromotion": {
+                    "label": "Näytä tarjous"
+                }
+            }
         }
-      }
     }
-  }
 }
 ```
 
@@ -92,15 +92,15 @@ You can also localize schema labels inline:
 
 ```json
 {
-  "name": { "en": "Hero banner", "fi": "Hero-banneri" },
-  "label": { "en": "Heading", "fi": "Otsikko" }
+    "name": { "en": "Hero banner", "fi": "Hero-banneri" },
+    "label": { "en": "Heading", "fi": "Otsikko" }
 }
 ```
 
-| Format                         | Best for                              |
-| ------------------------------ | ------------------------------------- |
-| `t:sections.hero.name`         | Large themes, many sections/blocks    |
-| `{ "en": "...", "fi": "..." }` | Small schemas, few labels             |
+| Format                         | Best for                           |
+| ------------------------------ | ---------------------------------- |
+| `t:sections.hero.name`         | Large themes, many sections/blocks |
+| `{ "en": "...", "fi": "..." }` | Small schemas, few labels          |
 
 Both formats work in the same theme.
 

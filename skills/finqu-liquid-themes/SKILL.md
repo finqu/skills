@@ -19,7 +19,7 @@ Use this skill when:
 ## Inputs required
 
 - **Theme root**: path to the theme directory
-- **Target file/component**: which template, section, or block to modify
+- **Target file/component**: which template, section, block, or section group to modify
 - **Finqu CLI authenticated**: `finqu sign-in` completed (for preview/deploy)
 
 ## Procedure
@@ -99,8 +99,9 @@ Read: `references/assets.md`
 3. Checkout uses **Vue.js** for dynamic features (cart updates, address validation, payment selection).
 4. Checkout templates: `checkout.liquid`, `complete.liquid`, `download.liquid`, `order.liquid`, `orders.liquid`, `return.liquid`.
 5. Required libraries — Bootstrap CSS in `<head>`, Vue and Bootstrap JS before `</body>`:
+
     ```html
-    <link rel="stylesheet" href="https://static.finqu.com/lib-sdk/bootstrap@5.3.8/bootstrap.min.css">
+    <link rel="stylesheet" href="https://static.finqu.com/lib-sdk/bootstrap@5.3.8/bootstrap.min.css" />
 
     <script src="https://static.finqu.com/lib-sdk/checkout-vue@1.3.6/vue.global.prod.js"></script>
     <script src="https://static.finqu.com/lib-sdk/checkout-vue@1.3.6/vue-i18n.global.prod.js"></script>
@@ -125,6 +126,8 @@ Read: `references/checkout.md`
 2. Designer labels in `locales/{lang}.schema.json` or inline `{ "en": "...", "fi": "..." }` objects in schemas.
 3. Reference schema translations with `t:` keys (e.g. `"label": "t:sections.hero.settings.heading.label"`).
 4. Use locale-keyed preset maps for market-specific default content.
+
+Read: `references/localization.md`
 
 Read: `references/localization.md`
 

@@ -27,19 +27,19 @@ Blocks are modular content elements that live inside sections. Most blocks rende
 
 ## Schema Properties
 
-| Property         | Required | Description                                                              |
-| ---------------- | -------- | ------------------------------------------------------------------------ |
-| `name`           | Yes      | Display name (localized object or `t:` key)                              |
-| `description`    | No       | Description shown in the editor                                          |
-| `category`       | Yes      | Must match an entry in `settings_schema.json` `block_categories`         |
-| `tag`            | No       | HTML tag (default: `div`)                                                |
-| `class`          | No       | CSS classes applied to the block wrapper                                 |
-| `templates`      | No       | Template types the block is available on. Empty/absent = all templates   |
-| `private`        | No       | If `true`, hidden from general picker; only addable where whitelisted     |
-| `display`        | No       | Editor rendering mode. Currently only `"inline"` (side-by-side layout)   |
-| `allowed_blocks` | No       | Whitelist of child blocks for layout blocks                              |
-| `containers`     | No       | Declares layout block drop zones                                         |
-| `settings`       | No       | Setting definitions                                                      |
+| Property         | Required | Description                                                            |
+| ---------------- | -------- | ---------------------------------------------------------------------- |
+| `name`           | Yes      | Display name (localized object or `t:` key)                            |
+| `description`    | No       | Description shown in the editor                                        |
+| `category`       | Yes      | Must match an entry in `settings_schema.json` `block_categories`       |
+| `tag`            | No       | HTML tag (default: `div`)                                              |
+| `class`          | No       | CSS classes applied to the block wrapper                               |
+| `templates`      | No       | Template types the block is available on. Empty/absent = all templates |
+| `private`        | No       | If `true`, hidden from general picker; only addable where whitelisted  |
+| `display`        | No       | Editor rendering mode. Currently only `"inline"` (side-by-side layout) |
+| `allowed_blocks` | No       | Whitelist of child blocks for layout blocks                            |
+| `containers`     | No       | Declares layout block drop zones                                       |
+| `settings`       | No       | Setting definitions                                                    |
 
 See the [block schema definition](https://schemas.finqu.com/liquid/block.schema.json) for the authoritative shape.
 
@@ -132,6 +132,84 @@ App blocks use the same schema format and respect `templates`, `private`, and `a
 ```liquid
 {% block 'app/part-payment' id: 'product-part-payment' %}
 ```
+
+## Layout Blocks and Containers
+
+A **layout block** declares one or more `containers` in its schema. Each container is a drop zone for **child blocks**. Nesting is limited to a **single level**.
+
+`blocks/product-card.liquid`:
+
+```liquid
+<div class="product-card">
+  <div class="product-card__media">{% container 'media' %}</div>
+  <div class="product-card__details">{% container 'details' %}</div>
+  <div class="product-card__actions">{% container 'actions' %}</div>
+</div>
+
+{% schema %}
+{
+  "name": { "en": "Product card" },
+  "templates": ["product", "category", "frontpage"],
+  "containers": [
+    {
+      "id": "media",
+      "title": { "en": "Media" },
+      "allowed_blocks": ["product-image", "product-badge"]
+    },
+    {
+      "id": "details",
+      "title": { "en": "Details" },
+      "allowed_blocks": ["product-title", "product-price", "product-rating"]
+    },
+    {
+      "id": "actions",
+      "title": { "en": "Actions" },
+      "allowed_blocks": ["buy-button", "wishlist-button"]
+    }
+  ]
+}
+{% endschema %}
+```
+
+## Private Blocks
+
+Set `private: true` to remove a block from the general picker. A private block can only be added where it is **explicitly listed** in an `allowed_blocks` whitelist:
+
+```liquid
+{% schema %}
+{
+  "name": { "en": "Price" },
+  "private": true
+}
+{% endschema %}
+```
+
+Use `private` for child-only blocks that only make sense inside a specific parent layout block.
+
+## allowed_blocks Whitelist
+
+Restricts which blocks a target accepts. Can be declared on:
+
+- A **layout block container** — restricts blocks in that container
+- A **section schema** — restricts blocks at the section's top level
+
+A block may be added when **all** apply:
+
+1. **Template** — `B.templates` is empty or includes the current template type
+2. **Privacy** — if the target has no whitelist, `B` must not be `private`
+3. **Whitelist** — if the target declares `allowed_blocks`, `B` must be in that list
+
+Empty/absent `allowed_blocks` means all public, template-compatible blocks are accepted.
+
+## Static Block Slots
+
+For integrations that must appear in an exact spot, use a static block slot:
+
+```liquid
+{% block 'app/part-payment' id: 'product-part-payment' %}
+```
+
+The merchant can configure it but cannot drag it elsewhere.
 
 ## Best Practices
 

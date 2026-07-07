@@ -4,13 +4,13 @@ The checkout is a separate theme with its own templates, layouts, assets, and co
 
 ## Checkout vs Storefront
 
-| Feature                                                              | Storefront theme | Checkout theme              |
-| -------------------------------------------------------------------- | ---------------- | --------------------------- |
-| Sections and blocks                                                  | Yes              | No — edit templates directly |
-| `{% form %}`                                                         | Yes              | No                          |
-| `{% section %}`, `{% sections %}`, `{% block %}`, `{% container %}` | Yes              | No                          |
-| `{% layout %}`, `{% render %}`, `{% stylesheet %}`, `{% javascript %}` | Yes              | Yes                         |
-| Vue checkout components                                              | No               | Required                    |
+| Feature                                                                | Storefront theme | Checkout theme               |
+| ---------------------------------------------------------------------- | ---------------- | ---------------------------- |
+| Sections and blocks                                                    | Yes              | No — edit templates directly |
+| `{% form %}`                                                           | Yes              | No                           |
+| `{% section %}`, `{% sections %}`, `{% block %}`, `{% container %}`    | Yes              | No                           |
+| `{% layout %}`, `{% render %}`, `{% stylesheet %}`, `{% javascript %}` | Yes              | Yes                          |
+| Vue checkout components                                                | No               | Required                     |
 
 ## Directory Structure
 
@@ -45,7 +45,7 @@ checkout/
 Include Bootstrap in `<head>`:
 
 ```html
-<link rel="stylesheet" href="https://static.finqu.com/lib-sdk/bootstrap@5.3.8/bootstrap.min.css">
+<link rel="stylesheet" href="https://static.finqu.com/lib-sdk/bootstrap@5.3.8/bootstrap.min.css" />
 ```
 
 Include these scripts before `</body>`:
@@ -57,42 +57,44 @@ Include these scripts before `</body>`:
 <script src="https://static.finqu.com/lib-sdk/bootstrap@5.3.8/bootstrap.bundle.min.js"></script>
 ```
 
+Do not remove or modify the Vue library script tags.
+
 ## Vue Initialization
 
 ```javascript
 const checkout = new Checkout();
 
 checkout.initialize(document.querySelector('html').dataset.sessionId).then(() => {
-  const app = Vue.createApp({
-    inject: ['$checkout'],
-    components: checkout.components(),
-  });
+    const app = Vue.createApp({
+        inject: ['$checkout'],
+        components: checkout.components(),
+    });
 
-  checkout.setUpApp(app);
+    checkout.setUpApp(app);
 
-  const messages = {};
-  messages[checkout.store.state.order.language] = TRANSLATIONS;
+    const messages = {};
+    messages[checkout.store.state.order.language] = TRANSLATIONS;
 
-  const i18n = VueI18n.createI18n({
-    locale: checkout.store.state.order.language,
-    fallbackLocale: checkout.store.state.order.language,
-    messages: messages,
-  });
+    const i18n = VueI18n.createI18n({
+        locale: checkout.store.state.order.language,
+        fallbackLocale: checkout.store.state.order.language,
+        messages: messages,
+    });
 
-  app.use(i18n);
-  app.mount('#checkout');
+    app.use(i18n);
+    app.mount('#checkout');
 });
 ```
 
 ## Checkout API
 
-| Method                        | Description                                    |
-| ----------------------------- | ---------------------------------------------- |
-| `components()`                | Returns all available Vue components           |
-| `dispatchEvent(event, data)`  | Dispatches a custom event                      |
-| `freeze()` / `resume()`       | Block/unblock user interactions during updates |
-| `refresh()`                   | Refresh checkout data from the server          |
-| `placeOrder()`                | Initiate order placement                       |
+| Method                       | Description                                    |
+| ---------------------------- | ---------------------------------------------- |
+| `components()`               | Returns all available Vue components           |
+| `dispatchEvent(event, data)` | Dispatches a custom event                      |
+| `freeze()` / `resume()`      | Block/unblock user interactions during updates |
+| `refresh()`                  | Refresh checkout data from the server          |
+| `placeOrder()`               | Initiate order placement                       |
 
 ## Key Vue Components
 

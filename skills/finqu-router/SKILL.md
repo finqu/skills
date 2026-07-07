@@ -39,7 +39,7 @@ Check for these indicators in order:
 5. **AI Commerce project** — Look for Worker configurations, Playbook definitions, MCP tool setup, Success Agent customization
    → Use **finqu-ai-commerce**
 
-6. **Storefront MCP** — Look for MCP server configuration pointing to `<domain>/mcp`, AI assistant code using Finqu storefront tools
+6. **Agentic Commerce / UCP** — Look for `/.well-known/ucp` discovery, MCP config pointing to `<domain>/mcp`, UCP tool names (`search_catalog`, `update_cart`), or `/api/ucp` REST calls
    → Use **finqu-storefront-mcp**
 
 7. **Customer communications** — Look for MJML/HTML email templates with Finqu Liquid variables (`{{ customer.* }}`, `{{ order.* }}`), print templates
@@ -62,7 +62,7 @@ If no project files are found, route based on what the user wants to do:
 | Query product/cart data via GraphQL             | **finqu-storefront-api** |
 | Use the Finqu CLI                               | **finqu-cli**            |
 | Set up AI agents, Workers, or Playbooks         | **finqu-ai-commerce**    |
-| Build an AI shopping assistant                  | **finqu-storefront-mcp** |
+| Build an AI shopping assistant (UCP / MCP)        | **finqu-storefront-mcp** |
 | Customize emails, prints, or marketing messages | **finqu-customer-comms** |
 | Use Cool UI components, utilities, or theming   | **finqu-cool**           |
 
@@ -72,7 +72,8 @@ Some tasks span multiple skills:
 
 - **GraphQL API usage** in a storefront → primary: **finqu-headless**, also read **finqu-storefront-api**
 - **CLI commands** in theme development → primary: **finqu-liquid-themes**, also read **finqu-cli**
-- **MCP tools** in AI Commerce → primary: **finqu-ai-commerce**, also read **finqu-storefront-mcp**
+- **MCP tools** in AI Commerce (admin) → primary: **finqu-ai-commerce**
+- **UCP / storefront agent access** → primary: **finqu-storefront-mcp** (distinct from admin MCP Tools)
 - **Cool UI in a Liquid theme** → primary: **finqu-liquid-themes**, also read **finqu-cool** for component usage
 - **Cool UI in a headless storefront** → primary: **finqu-storefront**, also read **finqu-cool** for component usage
 
