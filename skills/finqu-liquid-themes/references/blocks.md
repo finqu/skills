@@ -27,19 +27,25 @@ Blocks are modular content elements that live inside sections. Most blocks rende
 
 ## Schema Properties
 
-| Property         | Required | Description                                                            |
-| ---------------- | -------- | ---------------------------------------------------------------------- |
-| `name`           | Yes      | Display name (localized object or `t:` key)                            |
-| `description`    | No       | Description shown in the editor                                        |
-| `category`       | Yes      | Must match an entry in `settings_schema.json` `block_categories`       |
-| `tag`            | No       | HTML tag (default: `div`)                                              |
-| `class`          | No       | CSS classes applied to the block wrapper                               |
-| `templates`      | No       | Template types the block is available on. Empty/absent = all templates |
-| `private`        | No       | If `true`, hidden from general picker; only addable where whitelisted  |
-| `display`        | No       | Editor rendering mode. Currently only `"inline"` (side-by-side layout) |
-| `allowed_blocks` | No       | Whitelist of child blocks for layout blocks                            |
-| `containers`     | No       | Declares layout block drop zones                                       |
-| `settings`       | No       | Setting definitions                                                    |
+| Property                    | Required | Description                                                                                       |
+| --------------------------- | -------- | ------------------------------------------------------------------------------------------------- |
+| `name`                      | Yes      | Display name (localized object or `t:` key)                                                       |
+| `description`               | No       | Description shown in the editor                                                                   |
+| `category`                  | Yes      | Must match an entry in `settings_schema.json` `block_categories`                                  |
+| `tag`                       | No       | HTML tag (default: `div`)                                                                         |
+| `class`                     | No       | CSS classes applied to the block wrapper                                                            |
+| `templates`                 | No       | Template types the block is available on. Empty/absent = all templates                            |
+| `private`                   | No       | If `true`, hidden from general picker; only addable where whitelisted                             |
+| `display`                   | No       | Editor rendering mode. Currently only `"inline"` (side-by-side layout)                            |
+| `allowed_blocks`            | No       | Whitelist of child blocks for layout blocks. Container-level lists take precedence                  |
+| `containers`                | No       | Declares layout block drop zones                                                                  |
+| `containers[].id`           | Yes      | Container id used by `{% container 'id' %}`                                                       |
+| `containers[].title`        | No       | Container label in the designer                                                                   |
+| `containers[].type`         | No       | Container type, e.g. `"static"` for a fixed container                                           |
+| `containers[].allowed_blocks` | No     | Whitelist of blocks accepted by the container. Empty = all public blocks                          |
+| `containers[].preset`       | No       | Fallback blocks for static imports with no stored config. See [Container preset blocks](#container-preset-blocks) |
+| `presets`                   | No       | Predefined variants shown in the add-block picker. See [Block presets](#block-presets)            |
+| `settings`                  | No       | Setting definitions                                                                               |
 
 See the [block schema definition](https://schemas.finqu.com/liquid/block.schema.json) for the authoritative shape.
 
@@ -74,82 +80,14 @@ A layout block declares `containers` — drop zones for child blocks (single lev
 <div class="product-card">
   <div class="product-card__media">{% container 'media' %}</div>
   <div class="product-card__details">{% container 'details' %}</div>
-</div>
-
-{% schema %}
-{
-  "name": { "en": "Product card" },
-  "category": "content",
-  "templates": ["product"],
-  "containers": [
-    { "id": "media", "allowed_blocks": ["product-image"] },
-    { "id": "details", "allowed_blocks": ["product-title", "product-price"] }
-  ]
-}
-{% endschema %}
-```
-
-Container `preset.blocks` seeds read-only fallback blocks when a statically imported block has no stored configuration. Bare block-type name strings are only valid inside `preset.blocks`.
-
-## Private Blocks
-
-Set `private: true` to remove a block from the general picker. Private blocks can only be added where explicitly listed in an `allowed_blocks` whitelist:
-
-```json
-{ "name": { "en": "Price" }, "category": "content", "private": true }
-```
-
-Use `private` for child-only blocks that only make sense inside a specific parent layout block.
-
-## `allowed_blocks` Whitelist
-
-Restricts which blocks a target accepts. Can be declared on:
-
-- Section schema (top-level blocks)
-- Layout block schema (child blocks in all containers)
-- Container definition (overrides layout block schema for that container)
-
-A block may be added when **all** apply:
-
-1. **Template** — block's `templates` is empty or includes current template type
-2. **Privacy** — if target has no whitelist, block must not be `private`
-3. **Whitelist** — if target declares `allowed_blocks`, block must be in that list
-
-Empty/absent `allowed_blocks` means all public, template-compatible blocks are accepted.
-
-## Template Scope
-
-Template **type** is the part before the first dot. `product` and `product.custom` both have type `product`.
-
-```json
-{ "templates": ["product"] }
-```
-
-## Third-Party App Blocks
-
-App blocks use the same schema format and respect `templates`, `private`, and `allowed_blocks`. Themes constrain app blocks via section/container whitelists. For fixed integrations, use a static block slot:
-
-```liquid
-{% block 'app/part-payment' id: 'product-part-payment' %}
-```
-
-## Layout Blocks and Containers
-
-A **layout block** declares one or more `containers` in its schema. Each container is a drop zone for **child blocks**. Nesting is limited to a **single level**.
-
-`blocks/product-card.liquid`:
-
-```liquid
-<div class="product-card">
-  <div class="product-card__media">{% container 'media' %}</div>
-  <div class="product-card__details">{% container 'details' %}</div>
   <div class="product-card__actions">{% container 'actions' %}</div>
 </div>
 
 {% schema %}
 {
   "name": { "en": "Product card" },
-  "templates": ["product", "category", "frontpage"],
+  "category": "content",
+  "templates": ["product", "collection", "index"],
   "containers": [
     {
       "id": "media",
@@ -171,49 +109,144 @@ A **layout block** declares one or more `containers` in its schema. Each contain
 {% endschema %}
 ```
 
-## Private Blocks
+An unnamed `{% container %}` holds blocks that have no container assignment.
 
-Set `private: true` to remove a block from the general picker. A private block can only be added where it is **explicitly listed** in an `allowed_blocks` whitelist:
+## Container Preset Blocks
 
-```liquid
-{% schema %}
+Each `containers[].preset.blocks` array is a **fallback** for statically imported blocks (`{% block %}` in theme markup) that have **no stored configuration**. Preset blocks render **read-only** in the designer until the merchant makes the first change, then they are persisted as real block instances.
+
+```json
 {
-  "name": { "en": "Price" },
-  "private": true
+  "id": "actions",
+  "title": { "en": "Actions" },
+  "preset": {
+    "blocks": [
+      "buy-button",
+      { "name": "wishlist-button", "settings": { "style": "outline" } }
+    ]
+  }
 }
-{% endschema %}
 ```
 
-Use `private` for child-only blocks that only make sense inside a specific parent layout block.
+This is the **only place** a bare block-type name string (shorthand for `{ "name": "..." }`) is allowed. Settings not specified default to the block's own schema defaults. A preset block that is itself a layout block can nest further preset blocks via its own `blocks` array.
 
-## allowed_blocks Whitelist
+## Block Presets
+
+The `presets` property defines ready-made variants shown in the **add-block picker**. Unlike [container preset blocks](#container-preset-blocks), which are a read-only fallback for static imports, a block preset is applied **eagerly** — when a merchant picks it, its settings and nested child blocks are written into the block's stored configuration immediately.
+
+`presets` accepts a plain array or a locale-keyed map (same `schemaPresetList` shape as [section presets](sections.md#section-presets)):
+
+**Layout block** — preset seeds child blocks into containers:
+
+```json
+{
+  "name": { "en": "Product card" },
+  "category": "content",
+  "presets": [
+    {
+      "name": { "en": "Default" },
+      "default": true,
+      "blocks": [
+        { "name": "product-image", "container": "media" },
+        { "name": "product-title", "container": "details" },
+        { "name": "product-price", "container": "details" },
+        { "name": "buy-button", "container": "actions" }
+      ]
+    }
+  ],
+  "containers": [
+    { "id": "media", "title": { "en": "Media" } },
+    { "id": "details", "title": { "en": "Details" } },
+    { "id": "actions", "title": { "en": "Actions" } }
+  ]
+}
+```
+
+**Simple block** — preset sets `settings` only:
+
+```json
+{
+  "name": { "en": "Rich text" },
+  "category": "content",
+  "presets": [
+    {
+      "name": { "en": "Intro paragraph" },
+      "settings": {
+        "body": "<p>Welcome to our store.</p>"
+      }
+    }
+  ]
+}
+```
+
+| Field       | Type                      | Description                                                                                  |
+| ----------- | ------------------------- | -------------------------------------------------------------------------------------------- |
+| `id`        | string                    | Optional stable identifier for this preset variant                                           |
+| `name`      | string \| localized object | Label shown for this preset in the add-block picker                                         |
+| `default`   | boolean                   | If `true`, this is the default preset offered                                                |
+| `settings`  | object                    | Setting id → value pairs applied to the block on add                                         |
+| `blocks`    | array                     | Nested child block instances for layout blocks. When present, container presets are **not** used |
+
+Each entry in a preset's `blocks` array uses the same shape as [section preset block instances](sections.md#section-presets): `name`, optional `id`, `settings`, `container`, and nested `blocks`.
+
+For localized preset copy and locale-keyed preset maps, see [localization.md](localization.md#presets).
+
+## Private Blocks
+
+Set `private: true` to remove a block from the general picker. Private blocks can only be added where explicitly listed in an `allowed_blocks` whitelist:
+
+```json
+{ "name": { "en": "Price" }, "category": "content", "private": true }
+```
+
+Use `private` for child-only blocks that only make sense inside a specific parent layout block. Unlike a section's `is_creatable: false`, a private block *can* be added — but only where whitelisted.
+
+## `allowed_blocks` Whitelist
 
 Restricts which blocks a target accepts. Can be declared on:
 
-- A **layout block container** — restricts blocks in that container
-- A **section schema** — restricts blocks at the section's top level
+- Section schema (top-level blocks)
+- Layout block schema (child blocks in all containers)
+- Container definition (overrides layout block schema for that container)
 
 A block may be added when **all** apply:
 
-1. **Template** — `B.templates` is empty or includes the current template type
-2. **Privacy** — if the target has no whitelist, `B` must not be `private`
-3. **Whitelist** — if the target declares `allowed_blocks`, `B` must be in that list
+1. **Template** — block's `templates` is empty or includes current template type
+2. **Privacy** — if target has no whitelist, block must not be `private`
+3. **Whitelist** — if target declares `allowed_blocks`, block must be in that list
 
 Empty/absent `allowed_blocks` means all public, template-compatible blocks are accepted.
 
-## Static Block Slots
+## Template Scope
 
-For integrations that must appear in an exact spot, use a static block slot:
+Template **type** is the part before the first dot. `product` and `product.custom` both have type `product`. Template names can also be nested paths (e.g. `"marketing/cart"`).
+
+```json
+{ "templates": ["product"] }
+```
+
+| Use case                        | `templates`              |
+| ------------------------------- | ------------------------ |
+| Product part-payment calculator | `["product"]`            |
+| Cart-level calculator           | `["cart"]`               |
+| Generic marketing block         | omit (available everywhere) |
+
+## Third-Party App Blocks
+
+App blocks use the same schema format and respect `templates`, `private`, `allowed_blocks`, and `presets`. Themes constrain app blocks via section/container whitelists. For fixed integrations, use a static block slot:
 
 ```liquid
 {% block 'app/part-payment' id: 'product-part-payment' %}
 ```
 
-The merchant can configure it but cannot drag it elsewhere.
+## Enforcement
+
+Placement rules are enforced in the designer UI (filtered picker) and on the server (add-block API re-validates `templates`, `private`, and `allowed_blocks`). Validation currently runs on **block add** only — cross-container moves are not yet re-validated server-side.
 
 ## Best Practices
 
 - Keep block logic simple and focused on a single purpose
+- Use `presets` to offer ready-made block variants in the add-block picker
 - Use `private` and `allowed_blocks` to enforce intentional placement
 - Use layout blocks for composite components (product cards, etc.)
 - Test blocks across sections and template types

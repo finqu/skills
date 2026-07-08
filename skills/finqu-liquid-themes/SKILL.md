@@ -64,10 +64,11 @@ Read: `references/sections.md`
 ### 3) Blocks
 
 1. Blocks live in `blocks/` — reusable content elements inside sections.
-2. Blocks define their own `{% schema %}` with `name`, `category`, `settings`, and optional `containers` (layout blocks).
+2. Blocks define their own `{% schema %}` with `name`, `category`, `settings`, and optional `containers` (layout blocks) and `presets`.
 3. Layout blocks contain child blocks in named containers (single level of nesting).
-4. Use `private: true` and `allowed_blocks` to control where blocks can be placed.
-5. Block `category` must match entries in `settings_schema.json` `block_categories`.
+4. Use `presets` for ready-made add-block picker variants; use `containers[].preset` as a read-only fallback for static `{% block %}` imports.
+5. Use `private: true` and `allowed_blocks` to control where blocks can be placed.
+6. Block `category` must match entries in `settings_schema.json` `block_categories`.
 
 Read: `references/blocks.md`
 
