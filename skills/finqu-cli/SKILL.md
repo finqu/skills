@@ -38,10 +38,16 @@ finqu --version
 ### 1) Authenticate
 
 ```bash
-finqu login
+finqu sign-in
 ```
 
-Opens a browser for authentication. After logging in, your session is saved locally.
+Opens a browser for OAuth sign-in when you omit credentials. With an API key and secret:
+
+```bash
+finqu sign-in --key YOUR_API_KEY --secret YOUR_API_SECRET
+```
+
+The CLI stores the session in the project `.env`.
 
 Read: `references/authentication.md`
 
@@ -70,11 +76,9 @@ Read: `references/authentication.md`
 finqu theme configure
 ```
 
-This connects your local directory to a specific theme on a specific store. Creates/updates `finqu.config.json` with:
+This connects your local directory to a specific theme on a specific store. It writes the store and theme into `.env` (`FINQU_STORE_DOMAIN`, `FINQU_STORE_THEME_ID`, and related `FINQU_` keys).
 
-- Store URL
-- Theme ID
-- API credentials
+A legacy `finqu.config.json` converts with `finqu migrate`.
 
 Read: `references/theme-commands.md`
 
@@ -110,13 +114,12 @@ Read: `references/storefront-commands.md`
 
 ### 7) Configure your project
 
-After setup, your project has a `finqu.config.json`:
+After sign-in and `finqu theme configure`, the project `.env` holds the connection. Override the file with `--config` or `FINQU_CONFIG`.
 
-```json
-{
-    "store": "your-store.finqu.com",
-    "themeId": "12345"
-}
+```env
+FINQU_STORE_DOMAIN=example.finqustore.com
+FINQU_STORE_THEME_ID=870
+FINQU_RESOURCE_URL=https://example.api.myfinqu.com
 ```
 
 Read: `references/configuration.md`
@@ -124,8 +127,8 @@ Read: `references/configuration.md`
 ## Verification
 
 - `finqu --version` outputs the installed version
-- `finqu login` completes successfully
-- `finqu theme configure` creates `finqu.config.json`
+- `finqu sign-in` completes and writes credentials to `.env`
+- `finqu theme configure` stores the store domain and theme id in `.env`
 - `finqu theme dev` starts the dev server and opens a preview
 - `finqu theme deploy` uploads files without errors
 - `finqu storefront create` scaffolds a new project
@@ -133,8 +136,8 @@ Read: `references/configuration.md`
 ## Failure modes / debugging
 
 - **"command not found: finqu"**: Not installed globally — run `npm install -g @finqu/cli`
-- **Authentication fails**: Try `finqu logout` then `finqu login` again
-- **Theme configure fails**: Verify store URL and that you have access
+- **Authentication fails**: Run `finqu sign-in` again. There is no `logout` command
+- **Theme configure fails**: Verify you are signed in and that the account can access the store
 - **Dev server errors**: Check Node.js version (v18+ required), check port availability
 - **Deploy fails**: Verify config, check network, ensure theme exists on the store
 
@@ -143,5 +146,6 @@ Read: `references/troubleshooting.md`
 ## Escalation
 
 - See [CLI overview](https://developers.finqu.com/apis-and-tools/cli/overview.md.txt)
-- See [CLI reference](https://developers.finqu.com/apis-and-tools/cli.md.txt)
-- See [Theme development guide](https://developers.finqu.com/build-with-finqu/themes.md.txt)
+- See [CLI authentication](https://developers.finqu.com/apis-and-tools/cli/authentication.md.txt)
+- See [Theme commands](https://developers.finqu.com/apis-and-tools/cli/theme.md.txt)
+- See [Theme development kit](https://developers.finqu.com/apis-and-tools/theme-dev/overview.md.txt)

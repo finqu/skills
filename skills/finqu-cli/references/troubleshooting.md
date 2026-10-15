@@ -21,8 +21,7 @@ npx @finqu/cli --version
 **Session expired:**
 
 ```bash
-finqu logout
-finqu login
+finqu sign-in
 ```
 
 **Browser doesn't open:**
@@ -51,13 +50,13 @@ finqu theme dev --port 3001
 **Changes not syncing:**
 
 - Check network connectivity
-- Verify `finqu.config.json` is correct
+- Verify `.env` has `FINQU_STORE_DOMAIN` and `FINQU_STORE_THEME_ID`
 - Try restarting the dev server
 
 ## Deploy Failures
 
-- Verify you're authenticated (`finqu login`)
-- Check `finqu.config.json` exists and is valid
+- Verify you're authenticated (`finqu sign-in`)
+- Check `.env` exists and includes the store and theme keys
 - Ensure the theme still exists on the store
 - Check for file size limits or invalid file types
 

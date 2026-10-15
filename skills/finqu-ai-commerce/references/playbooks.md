@@ -1,48 +1,65 @@
 # Playbooks
 
-Structured step-by-step task sequences for Finqu's AI agent.
+Ordered workflows in Work Hub. Merchants run them. The Success Agent can help define or save a playbook. It cannot execute one.
 
-## What Are Playbooks?
+## Status
 
-Playbooks are ordered sequences of instructions that guide the AI through repeatable tasks. They ensure consistency and quality by defining exactly what steps to follow.
+| Status | Who can run it |
+|--------|----------------|
+| `draft` | Staff with developer permissions, manual only. No Events |
+| `active` | Manual, bulk actions, and Events |
+| `archived` | Nobody. Kept for audit history |
 
-## Structure
+## Shape
 
-A playbook consists of:
-
-1. **Name** — Clear, descriptive title
-2. **Description** — When and why to use this playbook
-3. **Steps** — Ordered list of actions to perform
-
-Each step should be:
-
-- **Specific** — Clear about what to do
-- **Measurable** — Has a verifiable outcome
-- **Sequential** — Order matters
-
-## Example Playbook
-
-**"Optimize Product Listing"**
-
+```json
+{
+  "slug": "automated-stock-replenishment",
+  "name": "Automated Stock Replenishment",
+  "description": "Find low stock, plan a transfer, wait for approval, then write it.",
+  "status": "draft",
+  "triggers": [{ "type": "manual" }],
+  "steps": [
+    {
+      "id": "analyze_stock",
+      "name": "Analyze stock",
+      "worker_type": "analyst",
+      "instructions": "List variants with under 7 days of supply.",
+      "allowed_tools": ["list_storages", "search_products"],
+      "output_variable": "low_stock_items"
+    },
+    {
+      "id": "review_gate",
+      "name": "Merchant confirmation",
+      "require_approval": true,
+      "instructions": "Review quantities before any write."
+    },
+    {
+      "id": "execute_transfers",
+      "name": "Create transfers",
+      "worker_type": "executor",
+      "instructions": "Create draft transfers from {{steps.analyze_stock.low_stock_items}}.",
+      "allowed_tools": ["create_inventory_transfer"],
+      "output_variable": "transfer_results"
+    }
+  ]
+}
 ```
-Step 1: Retrieve current product title, description, and images
-Step 2: Analyze title for SEO keywords (max 70 characters)
-Step 3: Check description for key product features and benefits
-Step 4: Generate improved title with primary keyword
-Step 5: Generate improved description with features, benefits, and specifications
-Step 6: Suggest image alt text improvements
-Step 7: Present all changes for merchant review
-Step 8: Apply approved changes
-```
 
-## Best Practices
+Working steps need `worker_type` (`analyst`, `planner`, or `executor`), `instructions`, and usually `allowed_tools`. Approval gates set `require_approval` and omit `worker_type`.
 
-- Keep steps atomic — one action per step
-- Include review/approval steps for changes
-- Add error handling steps (e.g., "If product not found, ask for correct ID")
-- Test playbooks with real store data
-- Iterate based on results
+Later steps read earlier output with `{{steps.<step_id>.<output_variable>}}`. Bulk runs receive `{{context.selected_ids}}`.
 
-## Full Reference
+`allowed_tools` narrows what that step may call. Keep the names inside the worker's own `tool_names` and inside tools the store actually has.
 
-- [Playbooks](https://developers.finqu.com/build-with-finqu/ai-commerce/playbooks.md.txt)
+## How a merchant runs one
+
+1. **Manual** — Work Hub, Playbooks.
+2. **Bulk** — select rows in admin and run the playbook.
+3. **Event** — a configured Event starts an `active` playbook. See `events.md`.
+
+Publish to `active` only after a manual test. Use `require_approval` before refunds, deletes, or live price changes. The run pauses at `waiting_for_approval` until a person approves or rejects it.
+
+## Full reference
+
+- [Playbooks](https://developers.finqu.com/ai/ai-commerce/playbooks.md.txt)

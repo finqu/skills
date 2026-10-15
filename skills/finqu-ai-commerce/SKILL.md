@@ -1,6 +1,6 @@
 ---
 name: finqu-ai-commerce
-description: 'Finqu AI Commerce — Success Agent, Workers, Playbooks, Guidelines, and MCP Tools'
+description: 'Finqu AI Commerce — Success Agent, Workers, Playbooks, Guidelines, and inbound MCP Tools'
 ---
 
 # Finqu AI Commerce
@@ -9,116 +9,101 @@ description: 'Finqu AI Commerce — Success Agent, Workers, Playbooks, Guideline
 
 Use this skill when:
 
-- Configuring Finqu's AI agent (Success Agent) for a store
-- Building or modifying Workers (Executor, Planner, Analyst)
-- Creating Playbooks (step-by-step task sequences for the AI)
-- Writing Guidelines (rules and context for AI behavior)
-- Connecting external MCP Tools to the AI agent
+- Configuring the Success Agent in Finqu admin
+- Authoring Workers (executor, planner, analyst)
+- Authoring Playbooks that merchants run
+- Writing Guidelines
+- Registering inbound MCP Tools so Finqu AI can call your systems
+
+This skill is **Finqu's own automation** (Work Hub). It is not:
+
+- **Admin MCP** — an external agent calling `https://mcp.finqu.com/mcp`. Use **finqu-admin-mcp**.
+- **UCP** — a shopping agent on a storefront. Use **finqu-storefront-mcp**.
+
+Events start Workers and Playbooks. They are a trigger, not the product you are configuring.
 
 ## Inputs required
 
-- **Store with AI Commerce enabled**
-- **Understanding of the task to automate**: What the AI agent should do
-- **Relevant context**: Product info, policies, tone of voice
+- **Store with AI Commerce / Work Hub**
+- **Task**: what the worker or playbook should do
+- **Tool whitelist**: exact tool names the worker may call
 
 ## Procedure
 
-### 0) Understand Success Agent
+### 0) Pick the surface
 
-The Success Agent is Finqu's built-in AI agent. It operates in three modes:
-
-1. **Ask** — Answer questions using store knowledge
-2. **Agent** — Execute tasks (modify products, create content, etc.)
-3. **Planning** — Create multi-step plans for complex tasks
-
-The agent uses Workers, Playbooks, and Guidelines to know what to do and how.
+| Goal | Where |
+|------|--------|
+| External agent operates the store | **finqu-admin-mcp** |
+| Finqu AI calls your ERP, CRM, or other MCP server | Inbound MCP Tools (this skill) |
+| Background report, plan, or mutation | Worker |
+| Ordered steps a merchant runs, or an Event starts | Playbook |
+| Shared tone, margin, and brand rules | Guidelines |
 
 Read: `references/success-agent.md`
 
-### 1) Configure Workers
+### 1) Configure a Worker
 
-Workers are specialized AI roles:
+Roles: `analyst` (read and report), `planner` (propose), `executor` (mutate). Keep write tools off the analyst and planner whitelists.
 
-- **Executor** — Carries out direct tasks (edit product, update inventory)
-- **Planner** — Breaks complex requests into step-by-step plans
-- **Analyst** — Analyzes data and provides insights
-
-Each worker has access to specific tools and follows configured guidelines.
+Required fields: `slug`, `name`, `type`, `system_prompt_extension`, `tool_names`, `status` (`active`, `paused`, or `draft`). Optional: `schedule` (cron), `channel_id`.
 
 Read: `references/workers.md`
 
-### 2) Create Playbooks
+### 2) Author a Playbook
 
-Playbooks are ordered sequences of steps that guide the AI through complex tasks:
+A playbook is an ordered `steps` array. Each working step names `worker_type`, `instructions`, and `allowed_tools`. Status is `draft`, `active`, or `archived`.
 
-```
-Playbook: "Optimize product listing"
-Step 1: Analyze current product title and description
-Step 2: Research competitor listings
-Step 3: Generate improved title (max 70 chars)
-Step 4: Generate improved description with key features
-Step 5: Review and present changes for approval
-```
-
-Playbooks ensure consistency and quality for repeatable tasks.
+Merchants run playbooks (manual, bulk, or an Event). The Success Agent can help create a playbook. It does not execute one.
 
 Read: `references/playbooks.md`
 
 ### 3) Write Guidelines
 
-Guidelines provide context and rules that shape AI behavior:
-
-- **Tone of voice** — How the AI should communicate
-- **Brand rules** — Product naming conventions, prohibited terms
-- **Business rules** — Pricing policies, shipping constraints
-- **Domain knowledge** — Product specifications, industry terms
+Guidelines apply to the Success Agent and to Workers. Put reusable business rules here instead of copying them into every `system_prompt_extension`.
 
 Read: `references/guidelines.md`
 
-### 4) Connect MCP Tools
+### 4) Register inbound MCP Tools
 
-MCP (Model Context Protocol) tools extend the AI agent's capabilities by connecting external services:
+Register the server in Work Hub so Success Agent, Workers, and Playbooks can call it.
 
-**Authentication methods:**
+- Transport: `streamable_http` or `sse`
+- Auth: `bearer`, `oauth2`, or `none`
 
-- **OAuth** — For services requiring user authorization
-- **Bearer token** — For API key-based services
-
-**Transport methods:**
-
-- **SSE** (Server-Sent Events) — Streaming connections
-- **Streamable HTTP** — Standard HTTP with streaming support
+OAuth sessions on Admin MCP do not receive these tools.
 
 Read: `references/mcp-tools.md`
 
-### 5) Test the configuration
+### 5) Trigger with an Event when the merchant wants automation
 
-1. Open the AI agent in the store admin
-2. Try each mode (Ask, Agent, Planning)
-3. Test playbooks by requesting the automated tasks
-4. Verify guidelines are followed in responses
-5. Confirm MCP tools connect and function correctly
+An Event binds a store activity or a cron schedule to a Worker or a Playbook. Manual and bulk runs do not need an Event. Webhooks that notify your own app are Admin REST webhooks, not Events.
+
+Read: `references/events.md`
 
 ## Verification
 
-- Success Agent responds in the configured tone of voice
-- Workers execute their designated tasks correctly
-- Playbooks produce consistent, repeatable results
-- Guidelines are respected (no violations of brand/business rules)
-- MCP Tools connect successfully and return expected data
+- Worker `tool_names` match tools you intend, and analysts have no write tools
+- Playbook `status` is `draft` until a merchant should run it
+- An active playbook runs from Work Hub (or from an Event), not from a Success Agent chat turn
+- Inbound server `tools/list` imports into the merchant tool registry
+- Admin MCP `tools/list` on `mcp.finqu.com` does not include those inbound tools
 
 ## Failure modes / debugging
 
-- **Agent doesn't follow guidelines**: Check guideline priority and specificity — more specific guidelines override general ones
-- **Playbook steps skipped**: Ensure steps are clearly ordered and have explicit completion criteria
-- **MCP Tool connection fails**: Verify auth credentials, check endpoint URL, confirm transport method
-- **Agent hallucinates**: Add more specific guidelines with examples, reduce ambiguity
-- **Worker uses wrong tool**: Review worker tool assignments in configuration
+- **Agent ignores a guideline**: make the rule specific. More specific guidelines override general ones
+- **Playbook step skipped**: give the step an `id`, `instructions`, and an `allowed_tools` list
+- **Worker calls the wrong tool**: the call is rejected when the name is absent from `tool_names`
+- **Inbound connection fails**: check `url`, `protocol` (`streamable_http` or `sse`), and `auth_type`
+- **External agent cannot see a custom tool**: that tool is inbound. Connect the agent with **finqu-admin-mcp** for platform tools only
 
 ## Escalation
 
-- See [AI Commerce overview](https://developers.finqu.com/build-with-finqu/ai-commerce/overview.md.txt)
-- See [Success Agent](https://developers.finqu.com/build-with-finqu/ai-commerce/success-agent.md.txt)
-- See [Workers](https://developers.finqu.com/build-with-finqu/ai-commerce/workers.md.txt)
-- See [Playbooks](https://developers.finqu.com/build-with-finqu/ai-commerce/playbooks.md.txt)
-- See [MCP Tools](https://developers.finqu.com/build-with-finqu/ai-commerce/mcp-tools.md.txt)
+- See [AI Commerce overview](https://developers.finqu.com/ai/ai-commerce/overview.md.txt)
+- See [Workers](https://developers.finqu.com/ai/ai-commerce/workers.md.txt)
+- See [Playbooks](https://developers.finqu.com/ai/ai-commerce/playbooks.md.txt)
+- See [MCP Tools](https://developers.finqu.com/ai/ai-commerce/mcp-tools.md.txt)
+- See [Events](https://developers.finqu.com/ai/ai-commerce/events.md.txt)
+- See [Success Agent](https://developers.finqu.com/ai/ai-commerce/success-agent.md.txt)
+- See [Guidelines](https://developers.finqu.com/ai/ai-commerce/guidelines.md.txt)
+- See [Admin MCP](https://developers.finqu.com/apis-and-tools/mcp/admin.md.txt)

@@ -19,15 +19,17 @@ The result is a ready-to-develop Next.js project.
 
 ## Development
 
-After creation, use standard Next.js development:
+After creation:
 
 ```bash
 cd your-storefront
 npm install
-npm run dev
+finqu storefront dev
 ```
+
+`finqu storefront dev` scans components and writes generated config under `.storefront`. Production is `finqu storefront build`.
 
 ## Full Reference
 
-- [Headless storefronts](https://developers.finqu.com/build-with-finqu/storefronts.md.txt)
-- [CLI overview](https://developers.finqu.com/apis-and-tools/cli/overview.md.txt)
+- [Headless storefronts](https://developers.finqu.com/build-with-finqu/storefront/overview.md.txt)
+- [Storefront commands](https://developers.finqu.com/apis-and-tools/cli/storefront.md.txt)

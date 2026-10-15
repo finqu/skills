@@ -1,49 +1,54 @@
 # Workers
 
-Specialized AI roles in Finqu's AI Commerce system.
+Background agents in Work Hub. Roles are `analyst`, `planner`, and `executor`.
 
-## Worker Types
+## Roles
 
-### Executor
+| Type | Does | Tools |
+|------|------|-------|
+| `analyst` | Reports and anomaly summaries | Read-only |
+| `planner` | Proposals with concrete parameters | Read-only, including guideline lookup |
+| `executor` | Mutations | Write tools you explicitly allow |
 
-Carries out direct, concrete tasks:
-
-- Edit product details (title, description, price)
-- Update inventory levels
-- Generate content (descriptions, meta tags)
-- Process data operations
-
-The Executor has access to store modification tools and follows guidelines for how changes should be made.
-
-### Planner
-
-Handles complex, multi-step requests:
-
-- Breaks down complex objectives into ordered steps
-- Creates actionable plans with clear milestones
-- Coordinates between different store areas
-
-The Planner creates plans that the Executor then carries out step by step.
-
-### Analyst
-
-Provides insights and analysis:
-
-- Sales performance analysis
-- Product performance reports
-- Customer behavior insights
-- Inventory optimization suggestions
-
-The Analyst reads data and provides insights but doesn't modify store data.
+An analyst must not hold write tools such as `create_product` or `delete_variant`.
 
 ## Configuration
 
-Workers are configured with:
+```json
+{
+  "slug": "weekly-inventory-analyst",
+  "name": "Weekly Inventory Analyst",
+  "type": "analyst",
+  "system_prompt_extension": "Focus on variants below the reorder point. Output a Markdown table.",
+  "tool_names": ["get_profile", "list_channels", "list_storages", "search_products"],
+  "schedule": "0 6 * * 1",
+  "channel_id": 101,
+  "status": "active"
+}
+```
 
-- **Available tools** — Which store/external tools they can access
-- **Guidelines** — Rules governing their behavior
-- **Permissions** — What they can read/modify
+| Field | Required | Notes |
+|-------|----------|-------|
+| `slug` | Yes | URL-safe id |
+| `name` | Yes | Work Hub label |
+| `type` | Yes | `analyst`, `planner`, or `executor` |
+| `system_prompt_extension` | Yes | Appended to the role prompt |
+| `tool_names` | Yes | Whitelist. A call outside this list is denied |
+| `schedule` | No | Cron, for example `0 6 * * 1` |
+| `channel_id` | No | Default channel injected into the run |
+| `status` | Yes | `active`, `paused`, or `draft` |
 
-## Full Reference
+Names inside `tool_names` must match real tools from `tools/list` (platform tools or imported inbound tools). Do not invent tool names.
 
-- [Workers](https://developers.finqu.com/build-with-finqu/ai-commerce/workers.md.txt)
+## What starts a run
+
+- The `schedule` cron
+- An Event (store activity or cron) — see `events.md`
+- A Playbook step
+- A manual operator action
+
+The runtime injects the role prompt, `system_prompt_extension`, Guidelines, and `channel_id` before the model runs.
+
+## Full reference
+
+- [Workers](https://developers.finqu.com/ai/ai-commerce/workers.md.txt)

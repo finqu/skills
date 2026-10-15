@@ -30,8 +30,10 @@ Use this skill when:
 ```bash
 npm install -g @finqu/cli
 finqu sign-in
-finqu storefront init
-npm run dev
+finqu storefront create my-storefront
+cd my-storefront
+npm install
+finqu storefront dev
 ```
 
 **Option B — Start from scratch:**
@@ -129,4 +131,4 @@ pnpm start        # Start production server
 
 - See [Storefront overview](https://developers.finqu.com/build-with-finqu/storefront/overview.md.txt)
 - See [Storefront SDK docs](https://developers.finqu.com/build-with-finqu/storefront/storefront-sdk.md.txt)
-- See [Storefront GraphQL API reference](https://developers.finqu.com/reference/storefront/1.1.0.md.txt)
+- See [Storefront GraphQL API reference](https://developers.finqu.com/reference/storefront/1.3.0.md.txt)

@@ -7,15 +7,23 @@ How to authenticate with the Finqu Storefront GraphQL API.
 All requests require an API key in the `Authorization` header:
 
 ```http
-Authorization: Bearer fq_your_api_key
+POST https://your-store.finqu.com/graphql/1.3.0
+Authorization: Bearer fq_public_…
+Content-Type: application/json
 ```
+
+The path is `/graphql/{version}`. The route requires the `Bearer` prefix and a key that starts with `fq_`.
+
+**Key types:**
+
+- `fq_public_…` — client-side. Products and carts. The request origin must be allowed for the channel.
+- `fq_secret_…` — server-side only. Adds scoped resources. Never ship it to the browser.
 
 **Getting your API key:**
 
 1. Log in to the Finqu admin
 2. Go to **Channel settings**
 3. Create or copy a Storefront API key
-4. Keys are prefixed with `fq_` (e.g., `fq_OPmgGrIY...`)
 
 ## Customer Authentication
 
@@ -108,5 +116,5 @@ mutation {
 
 - [Storefront authentication](https://developers.finqu.com/apis-and-tools/storefront/authentication.md.txt)
 - [Store context](https://developers.finqu.com/build-with-finqu/storefront/store-context.md.txt)
-- [customerAccessTokenCreate mutation](https://developers.finqu.com/reference/storefront/1.1.0/mutations/customer-access-token-create.md.txt)
-- [customerCreate mutation](https://developers.finqu.com/reference/storefront/1.1.0/mutations/customer-create.md.txt)
+- [customerAccessTokenCreate mutation](https://developers.finqu.com/reference/storefront/1.3.0/mutations/customer-access-token-create.md.txt)
+- [customerCreate mutation](https://developers.finqu.com/reference/storefront/1.3.0/mutations/customer-create.md.txt)

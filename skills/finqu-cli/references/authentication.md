@@ -2,28 +2,26 @@
 
 How to authenticate with the Finqu platform using the CLI.
 
-## Login
+## Sign in
 
 ```bash
-finqu login
+finqu sign-in
 ```
 
-This opens a browser window for authentication. After successful login, your credentials are stored locally for subsequent commands.
+Without `--key` and `--secret`, the CLI opens a browser for OAuth 2.0 and writes credentials to `.env`.
 
-## Logout
+With API credentials (Apps page for a merchant user, Partner management for a partner):
 
 ```bash
-finqu logout
+finqu sign-in --key YOUR_API_KEY --secret YOUR_API_SECRET
 ```
 
-Clears stored credentials.
+Environment alternatives: `FINQU_API_CLIENT_ID` and `FINQU_API_CLIENT_SECRET`.
 
-## Session Management
+## Refresh
 
-- Sessions persist across terminal sessions
-- If a session expires, re-run `finqu login`
-- Each machine/environment needs its own login
+There is no `logout` command. Run `finqu sign-in` again when the session fails. The CLI also refreshes tokens when they expire.
 
-## Full Reference
+## Full reference
 
-- [CLI authentication](https://developers.finqu.com/apis-and-tools/cli/overview.md.txt)
+- [CLI authentication](https://developers.finqu.com/apis-and-tools/cli/authentication.md.txt)

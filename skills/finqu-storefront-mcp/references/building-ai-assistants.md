@@ -1,123 +1,56 @@
-# Building AI Assistants
+# Building a shopping agent
 
-How to build custom AI shopping assistants against Finqu stores using UCP.
+One store. Protocol `2026-08-25`. There is no global product index.
 
-## Architecture
+## Intent
 
-```
-User ↔ Your AI App ↔ LLM (with MCP tools) ↔ UCP MCP at {shop-domain}/mcp
-                                              ↕
-                                    Finqu store channel
-```
+| Buyer intent | Call |
+|--------------|------|
+| Products, a category, or a comparison | `POST /api/ucp/catalog/search` (`search_catalog`) immediately |
+| One product | `POST /api/ucp/catalog/product` (`get_product`) |
+| Bag | `POST /api/ucp/carts` or `PUT /api/ucp/carts/{id}` (`create_cart`, `update_cart`) |
+| Ready to buy | `POST /api/ucp/checkout-sessions` with `cart_id` (`create_checkout`) |
+| Contact, address, shipping, or a code | `PUT /api/ucp/checkout-sessions/{id}` (`update_checkout`). Copy ids from the session. Restate `line_items` |
+| Agrees to pay | `POST …/complete` only when `status` is `ready_for_complete` (`complete_checkout`) |
+| Order status | `GET /api/ucp/orders/{id}` with `Bearer ucp_at_…` (`get_order`) |
 
-Your application:
+## Rules
 
-1. Discovers the merchant via `/.well-known/ucp`
-2. Receives user messages and sends them to an LLM with MCP tool definitions
-3. LLM decides which UCP tools to call
-4. Your app executes tool calls with `meta.ucp-agent.profile` on each call
-5. Returns results to the LLM, inspecting `ucp` and `messages` in responses
-6. LLM generates a natural language response
+- Search on the first shopping request. Do not ask a clarifying question before that search unless there is no product intent.
+- A cart does not need an address. Checkout is the commitment.
+- `line_items[].item.id` is the variant id. `customizations[].id` is the option id.
+- Do not invent fulfillment ids, shipping option ids, or payment fields. Read them from the checkout session.
+- If `status` is `requires_escalation` or `messages` include `payment_escalation`, send `continue_url`. That is the `com.finqu.hosted_checkout` handoff. Do not collect a card. A zero balance can complete without the handoff. `continue_url` can appear on the checkout before that.
+- `identity_optional` means guest checkout is allowed.
+- Do not invent returns, exchanges, cancellation of placed orders, or reorder actions.
+- Read `messages` after every call.
+- Money is minor units. Pass `context.language` and `context.currency`.
 
-## Implementation steps
-
-### 1. Discover the merchant
-
-```bash
-curl -s https://{shop-domain}/.well-known/ucp | jq .
-```
-
-Confirm `ucp.version`, available transports (REST, MCP), and capabilities.
-
-### 2. Set up MCP client
+## MCP client sketch
 
 ```typescript
-import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
-
-const PLATFORM_PROFILE = 'https://your-platform.example/.well-known/ucp';
-
 const transport = new StreamableHTTPClientTransport(
-    new URL('https://{shop-domain}/mcp'),
-    {
-        requestInit: {
-            headers: { Authorization: 'Bearer fq_secret_YOUR_KEY' },
-        },
-    },
+  new URL('https://{shop-domain}/mcp'),
+  { requestInit: { headers: { Authorization: 'Bearer fq_secret_YOUR_KEY' } } },
 );
-
-const mcpClient = new Client({ name: 'shopping-assistant', version: '1.0.0' });
-await mcpClient.connect(transport);
 ```
 
-### 3. Get available tools
+Use a separate client or request header with `Bearer ucp_at_…` for `get_order`. Never put both secrets on one header.
 
-```typescript
-const { tools } = await mcpClient.listTools();
-// UCP tools: search_catalog, lookup_catalog, get_product,
-//            create_cart, get_cart, update_cart, cancel_cart
-```
+`tools/list` should include `search_catalog`, `lookup_catalog`, `get_product`, `create_cart`, `get_cart`, `update_cart`, `cancel_cart`, `create_checkout`, `get_checkout`, `update_checkout`, `complete_checkout`, `cancel_checkout`, `get_order`, `search_locations`, `lookup_locations`, and `ucp_describe`.
 
-### 4. Handle tool calls with UCP metadata
+## Checklist
 
-```typescript
-const result = await mcpClient.callTool({
-    name: 'search_catalog',
-    arguments: { query: 'blue shirt', limit: 5 },
-    _meta: {
-        'ucp-agent': { profile: PLATFORM_PROFILE },
-    },
-});
-```
+1. Fetch `/.well-known/ucp` and confirm `2026-08-25`
+2. Publish your platform profile and send it on every call
+3. Create a cart with variant ids and option-level customizations
+4. Create a checkout from `cart_id`
+5. Complete, and hand off `continue_url` only when a balance remains
+6. Link the buyer before reading their order
 
-### 5. Shopping flow
+## Full reference
 
-A typical conversation:
-
-1. **User**: "I'm looking for a blue shirt"
-2. **LLM** calls `search_catalog({ query: "blue shirt" })`
-3. **LLM** presents results with prices and variant IDs
-4. **User**: "Add the first one to my cart"
-5. **LLM** calls `get_product` if customizations are needed, then `create_cart({ line_items: [{ item: { id: "variant-id" }, quantity: 1 }] })`
-6. **LLM**: "Added to your cart! Ready to checkout?"
-7. **User**: "Yes"
-8. **LLM** reads `continue_url` from the cart response and shares it with the user
-
-Until the checkout API is available, always use `continue_url` for checkout handoff — there is no separate checkout URL tool.
-
-### 6. Handle errors and messages
-
-Inspect every response:
-
-- `ucp.status` — `success` or `error`
-- `messages` — warnings, validation errors, rejected coupon codes
-- `severity` — `recoverable`, `unrecoverable`, or `requires_buyer_input`
-
-## Best practices
-
-- Fetch and cache the discovery profile — re-check when capabilities change
-- Maintain cart ID in session state across conversation turns
-- Look up products before adding to cart when customizations exist
-- Use `Idempotency-Key` on `create_cart` and `cancel_cart`
-- Pass `context` (language, currency) on catalog calls for localized results
-- Present product images, prices, and `continue_url` as clickable links
-- Gracefully handle capabilities advertised but not yet callable (checkout, orders)
-- Prefer token-tier API keys in production for highest rate limits
-
-## Integration checklist
-
-1. Obtain a storefront domain with UCP enabled
-2. Fetch `/.well-known/ucp` and confirm capabilities
-3. Create a channel API key or configure signed/anonymous access
-4. Publish your own `/.well-known/ucp` platform profile
-5. Connect MCP client to `/mcp` with authentication
-6. Pass `meta.ucp-agent.profile` on every tool call
-7. Build cart flows with `continue_url` checkout handoff
-8. Handle `messages`, rate limits, and idempotency in your agent loop
-
-## Full Reference
-
-- [Integration Guide](https://developers.finqu.com/ai/agentic-commerce/integration-guide.md.txt)
-- [MCP Transport](https://developers.finqu.com/reference/ucp/mcp-transport.md.txt)
-- [Responses & Errors](https://developers.finqu.com/reference/ucp/responses-and-errors.md.txt)
-- [MCP SDK documentation](https://modelcontextprotocol.io/docs)
+- [Prompting](https://developers.finqu.com/ai/agentic-commerce/prompting.md.txt)
+- [Getting started](https://developers.finqu.com/ai/agentic-commerce/getting-started.md.txt)
+- [Integration guide](https://developers.finqu.com/ai/agentic-commerce/integration-guide.md.txt)
+- [Responses and errors](https://developers.finqu.com/reference/ucp/responses-and-errors.md.txt)

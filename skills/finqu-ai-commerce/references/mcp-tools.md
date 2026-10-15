@@ -1,57 +1,35 @@
-# MCP Tools
+# Inbound MCP Tools
 
-Connecting external services to Finqu's AI agent via Model Context Protocol (MCP).
+Servers you register so Finqu AI can call your systems. Success Agent, Workers, and Playbooks use the imported tools.
 
-## What Are MCP Tools?
+This is inbound. External agents that operate Finqu admin connect the other way, to Admin MCP (`https://mcp.finqu.com/mcp`). Those OAuth sessions receive platform tools only. They do not receive servers you add here.
 
-MCP tools extend the Success Agent's capabilities by connecting external services. The agent can call these tools during conversations to fetch data, perform actions, or integrate with third-party systems.
+## Register
 
-## Authentication Methods
+Work Hub → Settings → Connected Tools, or the Admin API:
 
-### OAuth
+```json
+{
+  "name": "Acme Warehouse ERP",
+  "url": "https://mcp.acme-logistics.com/mcp",
+  "protocol": "streamable_http",
+  "auth_type": "bearer",
+  "auth_config": { "token": "YOUR_SECRET_TOKEN" },
+  "enabled": true
+}
+```
 
-For services requiring user authorization:
+| Field | Values |
+|-------|--------|
+| `protocol` | `streamable_http` (preferred) or `sse` |
+| `auth_type` | `bearer`, `oauth2`, or `none` |
+| `auth_config` | `{ "token" }` for bearer. `{ "client_id", "client_secret", "token_url", "scopes" }` for `oauth2`. `{}` for `none` |
 
-1. Configure OAuth client credentials in Finqu admin
-2. User authorizes access during setup
-3. Agent uses the granted token for API calls
+Finqu calls `tools/list` and imports the schemas. Tool names should be lowercase snake_case. Return JSON text. The call timeout is 30 seconds. Aim for 1–5 seconds, or return a job id and a status tool.
 
-### Bearer Token
+Assign imported names in Worker `tool_names` and Playbook `allowed_tools`.
 
-For API key-based services:
+## Full reference
 
-1. Obtain an API key from the external service
-2. Configure the key in Finqu admin
-3. Agent includes the key in requests
-
-## Transport Methods
-
-### SSE (Server-Sent Events)
-
-- Persistent connection for streaming responses
-- Good for real-time data feeds
-- Server pushes events to the client
-
-### Streamable HTTP
-
-- Standard HTTP with streaming support
-- Request/response model with streamed body
-- More widely compatible with existing infrastructure
-
-## Configuration
-
-To add an MCP tool:
-
-1. Open AI Commerce settings in the store admin
-2. Add a new MCP tool
-3. Configure:
-    - **Name** — Descriptive tool name
-    - **Endpoint URL** — The MCP server URL
-    - **Authentication** — OAuth or Bearer token
-    - **Transport** — SSE or Streamable HTTP
-4. Test the connection
-5. Assign the tool to relevant Workers
-
-## Full Reference
-
-- [MCP Tools](https://developers.finqu.com/build-with-finqu/ai-commerce/mcp-tools.md.txt)
+- [Inbound MCP Tools](https://developers.finqu.com/ai/ai-commerce/mcp-tools.md.txt)
+- [Admin MCP](https://developers.finqu.com/apis-and-tools/mcp/admin.md.txt)
