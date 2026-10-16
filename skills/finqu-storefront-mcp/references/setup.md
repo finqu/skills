@@ -5,125 +5,70 @@ How to enable UCP and connect an MCP client to a Finqu store.
 ## Prerequisites
 
 - A Finqu sales channel with a live storefront domain
-- UCP enabled on the channel (optionally MCP server)
-- A channel API key (`fq_secret_…`) or allowed anonymous/signed access
+- UCP enabled (MCP server enabled when you use `/mcp`)
+- A channel API key (`fq_secret_…`), or signed/anonymous access if the merchant allows it
+- For buyer order reads, a `ucp_at_…` token from identity linking
 
 ## Enable UCP (merchants)
 
-In **Channel Settings → API**:
+In **Channel Settings → API** (`/channel/{channelId}/settings`):
 
 1. Check **Enable UCP**
-2. Optionally check **Enable MCP server** for `/mcp` access
-3. Configure **Agent access** (anonymous, signed, API keys)
-4. Create an API key for production agents
+2. Optionally check **Enable MCP server**
+3. Under **Agent access**, allow anonymous and/or signed access as needed. Checkout and orders stay closed to anonymous callers
+4. Create an API key. The secret is shown once
 5. Save
 
 Verify:
 
 ```bash
-curl -s https://{shop-domain}/.well-known/ucp | jq .
-curl -s -H "Authorization: Bearer fq_secret_YOUR_KEY" \
-  https://{shop-domain}/api/ucp
+curl -sS "https://{shop-domain}/.well-known/ucp"
+curl -sS -H "Authorization: Bearer fq_secret_YOUR_KEY" \
+  "https://{shop-domain}/api/ucp"
 ```
 
-## MCP endpoint
+Expect `ucp.version` `2026-08-25` on discovery, and `"protocol": "ucp"` with `"status": "ok"` on the service root.
 
-When MCP server is enabled:
+## MCP client
 
-```
-https://{shop-domain}/mcp
-```
-
-## Authentication
-
-```http
-Authorization: Bearer fq_secret_…
-```
-
-See `references/authentication.md` for signed and anonymous tiers.
-
-## Platform profile (required for MCP tools)
-
-Publish your platform profile at `https://your-platform.example/.well-known/ucp`, then pass it in every MCP tool call:
+Endpoint: `https://{shop-domain}/mcp`. Transport: Streamable HTTP.
 
 ```json
 {
-  "meta": {
-    "ucp-agent": {
-      "profile": "https://your-platform.example/.well-known/ucp"
+  "mcpServers": {
+    "finqu-store": {
+      "url": "https://{shop-domain}/mcp",
+      "headers": {
+        "Authorization": "Bearer fq_secret_YOUR_KEY"
+      }
     }
   }
 }
 ```
 
-## Connecting with Claude Desktop
-
-```json
-{
-    "mcpServers": {
-        "finqu-store": {
-            "url": "https://{shop-domain}/mcp",
-            "headers": {
-                "Authorization": "Bearer fq_secret_YOUR_KEY"
-            }
-        }
-    }
-}
-```
-
-Note: Claude Desktop may not pass `meta.ucp-agent.profile` automatically. Custom agent frameworks give full control over tool call metadata.
-
-## Connecting programmatically
-
-```typescript
-import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
-
-const transport = new StreamableHTTPClientTransport(
-    new URL('https://{shop-domain}/mcp'),
-    {
-        requestInit: {
-            headers: {
-                Authorization: 'Bearer fq_secret_YOUR_KEY',
-            },
-        },
-    },
-);
-
-const client = new Client({ name: 'shopping-agent', version: '1.0.0' });
-await client.connect(transport);
-
-const { tools } = await client.listTools();
-```
-
-When calling tools, include the UCP agent metadata:
+Pass `meta.ucp-agent.profile` on every tool call. A static client config does not add that metadata for you. Swap the bearer to `ucp_at_…` for a buyer order read. Do not send both tokens.
 
 ```typescript
 await client.callTool({
-    name: 'search_catalog',
-    arguments: {
-        query: 'blue shirt',
-        limit: 5,
-    },
-    // Pass via your MCP client's meta/_meta field:
-    _meta: {
-        'ucp-agent': {
-            profile: 'https://your-platform.example/.well-known/ucp',
-        },
-    },
+  name: 'search_catalog',
+  arguments: { query: 'linen shirt', context: { language: 'en', currency: 'EUR' } },
+  _meta: {
+    'ucp-agent': { profile: 'https://your-platform.example/.well-known/ucp' },
+  },
 });
 ```
 
-## Transport
+## REST
 
-UCP MCP uses **Streamable HTTP** transport.
+REST is available whenever UCP is enabled, including when MCP is off.
 
-## REST alternative
+```http
+UCP-Agent: profile="https://your-platform.example/.well-known/ucp"
+Authorization: Bearer fq_secret_…
+```
 
-If MCP is not enabled, use the REST API at `https://{shop-domain}/api/ucp` with the same authentication and `UCP-Agent` header. See the [REST API reference](https://developers.finqu.com/reference/ucp/rest-api.md.txt).
+## Full reference
 
-## Full Reference
-
-- [MCP overview](https://developers.finqu.com/apis-and-tools/mcp/overview.md.txt)
 - [Activating UCP](https://developers.finqu.com/ai/agentic-commerce/activating-ucp.md.txt)
-- [MCP Transport](https://developers.finqu.com/reference/ucp/mcp-transport.md.txt)
+- [Getting started](https://developers.finqu.com/ai/agentic-commerce/getting-started.md.txt)
+- [MCP transport](https://developers.finqu.com/reference/ucp/mcp-transport.md.txt)

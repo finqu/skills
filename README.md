@@ -12,14 +12,15 @@ Agent Skills are portable bundles of instructions, checklists, and reference doc
 | ------------------------ | ----------------------------------------------------------------------------------- |
 | **finqu-router**         | Classifies Finqu projects and routes to the appropriate skill                       |
 | **finqu-liquid-themes**  | Liquid theme development — templates, sections, blocks, settings, layouts, checkout |
-| **finqu-storefront**     | Headless storefronts with Next.js, Nexus theme, Storefront SDK, Puck visual editor  |
+| **finqu-headless**       | Headless storefronts with Next.js, Nexus theme, Storefront SDK, Puck visual editor  |
 | **finqu-rest-api**       | REST API integration — authentication, CRUD, error handling, webhooks               |
 | **finqu-storefront-api** | Storefront GraphQL API — queries, mutations, customer auth, pagination              |
 | **finqu-apps**           | Partner apps & integrations — App Link, OAuth, embedding in admin                   |
 | **finqu-cli**            | Finqu CLI — theme dev/deploy, storefront create, configuration                      |
-| **finqu-ai-commerce**    | AI Commerce — Success Agent, Workers, Playbooks, Guidelines, MCP Tools              |
+| **finqu-admin-mcp**      | Admin MCP — external agents operating merchant admin at `mcp.finqu.com`             |
+| **finqu-ai-commerce**    | AI Commerce — Success Agent, Workers, Playbooks, Guidelines, inbound MCP Tools      |
 | **finqu-customer-comms** | Customer communications — emails, prints, marketing messages with MJML/Liquid       |
-| **finqu-storefront-mcp** | Agentic Commerce — UCP integrations for AI shopping agents (REST and MCP transport) |
+| **finqu-storefront-mcp** | Agentic Commerce — UCP shopping agents (REST and MCP, protocol `2026-08-25`)        |
 | **finqu-cool**           | Cool UI toolkit — components, utility classes, theming with CSS custom properties   |
 
 ## Quick Start
@@ -34,7 +35,7 @@ npx skills add Finqu/skills
 
 ```bash
 npx skills add Finqu/skills --skill finqu-liquid-themes
-npx skills add Finqu/skills --skill finqu-storefront --skill finqu-rest-api
+npx skills add Finqu/skills --skill finqu-headless --skill finqu-rest-api
 ```
 
 ### Install globally (available across all projects)

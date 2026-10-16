@@ -19,7 +19,7 @@ Use this skill when:
 
 - **Store domain**: e.g., `your-store.finqu.com`
 - **API key**: Storefront API key from Channel settings (prefixed `fq_`)
-- **API version**: check the project for which version it uses; the latest stable is `1.1.0` but the project may target a different one
+- **API version**: check the project for which version it uses; the latest stable is `1.3.0` but the project may target a different one
 
 ## Procedure
 
@@ -37,14 +37,16 @@ Use this skill when:
 **API key** (required for all requests):
 
 ```http
-POST https://your-store.finqu.com/api/storefront
-Authorization: Bearer fq_your_api_key
+POST https://your-store.finqu.com/graphql/1.3.0
+Authorization: Bearer fq_public_your_api_key
 Content-Type: application/json
 
 {
   "query": "{ store { name } }"
 }
 ```
+
+The storefront route is `/graphql/{version}`. It accepts `Authorization: Bearer` plus an `fq_public_…` or `fq_secret_…` key. Use a public key in the browser and a secret key only on a server.
 
 **Customer authentication** (for personalized data):
 
@@ -138,6 +140,6 @@ Read: `references/error-handling.md`
 ## Escalation
 
 - See [Storefront API overview](https://developers.finqu.com/apis-and-tools/storefront/overview.md.txt)
-- See [Storefront API reference v1.1.0](https://developers.finqu.com/reference/storefront/1.1.0.md.txt)
-- See [Storefront API queries](https://developers.finqu.com/reference/storefront/1.1.0/queries/product.md.txt)
-- See [Storefront API mutations](https://developers.finqu.com/reference/storefront/1.1.0/mutations/cart-create.md.txt)
+- See [Storefront API reference v1.3.0](https://developers.finqu.com/reference/storefront/1.3.0.md.txt)
+- See [Storefront API queries](https://developers.finqu.com/reference/storefront/1.3.0/queries/product.md.txt)
+- See [Storefront API mutations](https://developers.finqu.com/reference/storefront/1.3.0/mutations/cart-create.md.txt)

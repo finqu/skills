@@ -71,5 +71,5 @@ Customer-scoped queries like `customer`, `order`, and `orders` require `customer
 ## Full Reference
 
 - [Store context](https://developers.finqu.com/build-with-finqu/storefront/store-context.md.txt)
-- [customerAccessTokenCreate mutation](https://developers.finqu.com/reference/storefront/1.1.0/mutations/customer-access-token-create.md.txt)
-- [locales query](https://developers.finqu.com/reference/storefront/1.1.0/queries/locales.md.txt)
+- [customerAccessTokenCreate mutation](https://developers.finqu.com/reference/storefront/1.3.0/mutations/customer-access-token-create.md.txt)
+- [locales query](https://developers.finqu.com/reference/storefront/1.3.0/queries/locales.md.txt)

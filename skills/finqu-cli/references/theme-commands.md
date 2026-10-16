@@ -8,13 +8,7 @@ CLI commands for Liquid theme development.
 finqu theme configure
 ```
 
-Connects your local directory to a store theme. Interactive prompts ask for:
-
-- Store URL
-- Theme selection (existing or new)
-- API credentials
-
-Creates `finqu.config.json` in the current directory.
+Connects your local directory to a store theme. Sign in first with `finqu sign-in`. The command stores the store and theme in `.env`.
 
 ## Develop
 
@@ -63,5 +57,5 @@ finqu theme deploy
 
 ## Full Reference
 
-- [Theme development](https://developers.finqu.com/build-with-finqu/themes.md.txt)
-- [CLI theme commands](https://developers.finqu.com/apis-and-tools/cli/overview.md.txt)
+- [Theme commands](https://developers.finqu.com/apis-and-tools/cli/theme.md.txt)
+- [Theme development kit](https://developers.finqu.com/apis-and-tools/theme-dev/overview.md.txt)

@@ -1,99 +1,82 @@
-# UCP Fundamentals
+# UCP fundamentals
 
-Core concepts for integrating AI shopping agents with Finqu via the [Universal Commerce Protocol (UCP)](https://ucp.dev).
+**Protocol version:** `2026-08-25`
 
-**Protocol version:** `2026-04-08`
-
-## Roles
-
-| Role | On Finqu |
-|------|----------|
-| **Business** | The merchant's sales channel (storefront domain) |
-| **Platform** | Your agent, assistant, or integration |
-
-## Discovery profile
-
-Before calling any API, fetch the merchant profile:
+## Discovery
 
 ```
 GET https://{shop-domain}/.well-known/ucp
 ```
 
-Public, unauthenticated, cacheable. Key fields:
+Public. `404` when UCP is off for that domain.
 
 | Field | Purpose |
 |-------|---------|
-| `ucp.version` | Protocol version — must match your integration |
-| `ucp.services` | Available transports and base endpoints |
-| `ucp.capabilities` | Shopping capabilities the merchant advertises |
+| `ucp.version` | Must be `2026-08-25` for this release |
+| `ucp.services` | REST and MCP bindings under `dev.ucp.shopping` and `dev.ucp.common` |
+| `ucp.capabilities` | What this store advertises |
+| `ucp.payment_handlers` | Includes `com.finqu.hosted_checkout` |
+| `keys` | Public signing keys |
 
-If UCP is not enabled, this endpoint returns `404`.
+Transports: REST at `https://{shop-domain}/api/ucp` whenever UCP is enabled. MCP at `https://{shop-domain}/mcp` when the merchant enables the MCP server. Embedded checkout is a separate transport (`/ucp/host.js`).
 
-## Transports
+## Capabilities the code advertises
 
-| Transport | Endpoint | When available |
-|-----------|----------|----------------|
-| **REST** | `https://{shop-domain}/api/ucp` | Always when UCP is enabled |
-| **MCP** | `https://{shop-domain}/mcp` | When merchant enables MCP server |
-| **Embedded** | `/ucp/host.js` | Hosted checkout iframe (when checkout capability is available) |
+When UCP is enabled, the business profile always includes:
 
-## Capabilities
+| Capability | Role |
+|------------|------|
+| `dev.ucp.shopping.catalog.search` | Search |
+| `dev.ucp.shopping.catalog.lookup` | Lookup by id |
+| `dev.ucp.shopping.cart` | Carts |
+| `dev.ucp.shopping.checkout` | Checkout sessions |
+| `dev.ucp.shopping.fulfillment` | Shipping or pickup (`method_combinations`) |
+| `dev.ucp.shopping.discount` | Extends cart and checkout |
+| `dev.ucp.shopping.order` | Order reads |
+| `dev.ucp.common.identity_linking` | Buyer OAuth. Gated scope is `dev.ucp.shopping.order:read` |
+| `dev.ucp.shopping.buyer_consent` | Extends cart and checkout |
+| `dev.ucp.shopping.permalink` | Purchase links at `https://{shop-domain}/buy` |
+| `dev.ucp.common.payment.split_payments` | One gift card with a redirect, or a gift card alone |
 
-Capabilities use reverse-DNS identifiers. Finqu intersects the merchant's advertised set with your platform profile per request.
+Advertised only when the channel can honor them:
 
-### Currently available
+| Capability | When |
+|------------|------|
+| `dev.ucp.common.location.search` and `dev.ucp.common.location.lookup` | Channel has a pickup shipping method |
+| `dev.ucp.common.loyalty` | Channel has a lifetime loyalty campaign |
+| `dev.ucp.common.payment.terms` | Channel has an invoice payment method |
 
-| Capability | Description |
-|------------|-------------|
-| `dev.ucp.shopping.catalog.search` | Full-text product search |
-| `dev.ucp.shopping.catalog.lookup` | Batch lookup by ID |
-| `dev.ucp.shopping.cart` | Create, read, update, cancel carts |
-| `dev.ucp.shopping.discount` | Coupon codes on carts (extends cart) |
+Read the live profile. Do not call a capability it does not list. Negotiation drops extensions whose parent was not negotiated. If you omit a platform profile, the merchant's advertised set is used.
 
-### Not yet available
+`com.finqu.hosted_checkout` advertises instruments `redirect` and `gift_card`. Its `checkout_url` is the store checkout host, not an initialized payment session.
 
-Checkout, fulfillment, order, buyer consent, and identity linking are in the UCP spec but not exposed on Finqu today. Direct buyers to `continue_url` on carts for storefront checkout.
+## Negotiation
 
-## Capability negotiation
+Publish `https://your-platform.example/.well-known/ucp`. Protocol versions must match exactly.
 
-Publish your platform profile at `https://your-platform.example/.well-known/ucp`, then declare it on each request.
-
-**Rules:**
-
-- Protocol versions must match exactly (`2026-04-08`)
-- Only capabilities in **both** profiles are active
-- Extension capabilities are removed if their parent was not negotiated
-- Every response includes a `ucp` block with `version`, `status`, and negotiated `capabilities`
-
-### REST
+REST:
 
 ```http
 UCP-Agent: profile="https://your-platform.example/.well-known/ucp"
 ```
 
-### MCP
+MCP `meta`:
 
 ```json
 {
-  "meta": {
-    "ucp-agent": {
-      "profile": "https://your-platform.example/.well-known/ucp"
-    }
+  "ucp-agent": {
+    "profile": "https://your-platform.example/.well-known/ucp"
   }
 }
 ```
 
-## Responses
+## Money and messages
 
-Every UCP response includes protocol metadata. Inspect the `ucp` block and `messages` array on every call.
+Amounts are integers in minor units. A `discount` total is negative. Inspect `ucp` and `messages` on every response. `severity` is `recoverable`, `unrecoverable`, or `requires_buyer_input`.
 
-- Monetary amounts are **integers in minor currency units** (cents, öre)
-- Cart responses include `continue_url` for buyer checkout handoff
-- Use `Idempotency-Key` on cart create and cancel
-
-## Full Reference
+## Full reference
 
 - [Agentic Commerce overview](https://developers.finqu.com/ai/agentic-commerce/overview.md.txt)
-- [Integration Guide](https://developers.finqu.com/ai/agentic-commerce/integration-guide.md.txt)
-- [UCP API Reference](https://developers.finqu.com/reference/ucp.md.txt)
-- [Responses & Errors](https://developers.finqu.com/reference/ucp/responses-and-errors.md.txt)
+- [Integration guide](https://developers.finqu.com/ai/agentic-commerce/integration-guide.md.txt)
+- [UCP reference](https://developers.finqu.com/reference/ucp.md.txt)
+- [Responses and errors](https://developers.finqu.com/reference/ucp/responses-and-errors.md.txt)

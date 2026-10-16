@@ -206,10 +206,10 @@ query @storeContext(customerAccessToken: "TOKEN") {
 
 ## Full Reference
 
-- [All queries (v1.1.0)](https://developers.finqu.com/reference/storefront/1.1.0.md.txt)
-- [Product query](https://developers.finqu.com/reference/storefront/1.1.0/queries/product.md.txt)
-- [Cart query](https://developers.finqu.com/reference/storefront/1.1.0/queries/cart.md.txt)
-- [Store query](https://developers.finqu.com/reference/storefront/1.1.0/queries/store.md.txt)
-- [Customer query](https://developers.finqu.com/reference/storefront/1.1.0/queries/customer.md.txt)
-- [Order query](https://developers.finqu.com/reference/storefront/1.1.0/queries/order.md.txt)
-- [Orders query](https://developers.finqu.com/reference/storefront/1.1.0/queries/orders.md.txt)
+- [All queries (v1.3.0)](https://developers.finqu.com/reference/storefront/1.3.0.md.txt)
+- [Product query](https://developers.finqu.com/reference/storefront/1.3.0/queries/product.md.txt)
+- [Cart query](https://developers.finqu.com/reference/storefront/1.3.0/queries/cart.md.txt)
+- [Store query](https://developers.finqu.com/reference/storefront/1.3.0/queries/store.md.txt)
+- [Customer query](https://developers.finqu.com/reference/storefront/1.3.0/queries/customer.md.txt)
+- [Order query](https://developers.finqu.com/reference/storefront/1.3.0/queries/order.md.txt)
+- [Orders query](https://developers.finqu.com/reference/storefront/1.3.0/queries/orders.md.txt)

@@ -80,4 +80,4 @@ function StoreInfo() {
 ## Full Reference
 
 - [Storefront SDK](https://developers.finqu.com/build-with-finqu/storefront/storefront-sdk.md.txt)
-- [Storefront API reference](https://developers.finqu.com/reference/storefront/1.1.0.md.txt)
+- [Storefront API reference](https://developers.finqu.com/reference/storefront/1.3.0.md.txt)

@@ -1,44 +1,33 @@
 # Configuration
 
-The `finqu.config.json` configuration file.
+The CLI stores settings in a `.env` file as `FINQU_`-prefixed variables. `finqu theme configure` and `finqu sign-in` write this file. The default path is `./.env`. Override it with `--config` or `FINQU_CONFIG`.
 
-## Location
-
-Created in your project root by `finqu theme configure` or `finqu storefront create`.
-
-## Theme Configuration
-
-```json
-{
-    "store": "your-store.finqu.com",
-    "themeId": "12345"
-}
+```env
+FINQU_RESOURCE_URL=https://example.api.myfinqu.com
+FINQU_STORE_DOMAIN=example.finqustore.com
+FINQU_STORE_THEME_ID=870
+FINQU_ACCESS_TOKEN=
+FINQU_REFRESH_TOKEN=
 ```
 
-| Field     | Description               |
-| --------- | ------------------------- |
-| `store`   | The store's domain        |
-| `themeId` | ID of the connected theme |
+| Variable | Role |
+|----------|------|
+| `FINQU_RESOURCE_URL` | Admin API base URL, set by `finqu sign-in` |
+| `FINQU_STORE_DOMAIN` | Connected store domain |
+| `FINQU_STORE_THEME_ID` | Connected theme id |
+| `FINQU_API_VERSION` | Optional. Default in the CLI docs is `1.2` |
+| `FINQU_THEME_DIR` | Local theme directory |
 
-## Environment Variables
+Do not commit `.env`.
 
-For sensitive values (API keys, tokens), use environment variables instead of config files:
+## Legacy JSON
+
+Older projects used `finqu.config.json`. Convert it:
 
 ```bash
-FINQU_STORE_URL=your-store.finqu.com
-FINQU_API_KEY=your_api_key
+finqu migrate
 ```
 
-## .gitignore
+## Full reference
 
-Always add sensitive config to `.gitignore`:
-
-```
-finqu.config.json
-.env
-.env.local
-```
-
-## Full Reference
-
-- [CLI configuration](https://developers.finqu.com/apis-and-tools/cli/overview.md.txt)
+- [CLI configuration](https://developers.finqu.com/apis-and-tools/cli/configuration.md.txt)
